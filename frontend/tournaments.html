@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueMate | Tournaments</title>
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="navbar" class="navbar"></header>
+  <div class="app-shell">
+    <aside class="sidebar-left" id="sidebarLeft"></aside>
+    <main class="main-content">
+      <div class="welcome-banner">
+        <h2>🏆 Tournament Hub</h2>
+        <p>Discover upcoming and ongoing tournaments. Click Register to join via external links. Browse finished tournaments and see results.</p>
+      </div>
+      <div id="tournamentCreateBox"></div>
+      <div class="filter-bar">
+        <select id="tFilterGame">
+          <option value="">All Games</option>
+          <option value="valorant">Valorant</option><option value="pubgm">PUBG Mobile</option>
+          <option value="ff">Free Fire</option><option value="mlbb">Mobile Legends</option>
+        </select>
+        <select id="tFilterTier">
+          <option value="">All Tiers</option>
+          <option value="C">Tier C</option><option value="B">Tier B</option>
+          <option value="A">Tier A</option><option value="S">Tier S</option>
+        </select>
+        <select id="tFilterStatus">
+          <option value="">All Status</option>
+          <option value="upcoming">Upcoming</option><option value="ongoing">Ongoing</option><option value="over">Over</option>
+        </select>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="tSearch" placeholder="Search by title or organizer…">
+        </div>
+      </div>
+      <div id="tournamentList"></div>
+    </main>
+    <aside class="sidebar-right" id="sidebarRight"></aside>
+  </div>
+  <script src="js/config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script>
+  <script src="js/helpers.js"></script><script src="js/ui.js"></script><script src="js/navbar.js"></script>
+  <script src="js/tournament.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', initTournaments);</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueMate | Home</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="home-page">
+  <header id="navbar" class="navbar"></header>
+
+  <div class="app-shell home-shell">
+    <aside class="sidebar-left" id="sidebarLeft"></aside>
+
+    <main class="main-content home-main">
+      <section class="home-hero-shell">
+        <div id="featuredTournamentHero" class="featured-hero loading">
+          <div class="featured-hero-backdrop"></div>
+          <div class="featured-hero-overlay"></div>
+          <div class="featured-hero-content">
+            <div class="featured-hero-minimal">
+              <div class="featured-hero-minimal-copy">
+                <div class="featured-hero-game">Loading game</div>
+                <h1>Loading spotlight</h1>
+              </div>
+              <div class="featured-hero-actions">
+                <span class="btn btn-primary btn-lg">Explore</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="feed-shell">
+        <div class="feed-shell-top">
+          <div id="createPostBox"></div>
+        </div>
+
+        <div class="feed-panel">
+          <div class="feed-toolbar">
+            <div class="filter-bar">
+              <select id="feedCatFilter">
+                <option value="">All Categories</option>
+                <option value="news">News</option>
+                <option value="result">Result</option>
+                <option value="recruitment">Recruitment</option>
+              </select>
+              <div class="search-input-wrap">
+                <span class="search-icon">??</span>
+                <input type="text" id="feedSearch" placeholder="Search posts, players, or updates">
+              </div>
+            </div>
+          </div>
+
+          <div id="feedList" class="feed-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="sidebar-right" id="sidebarRight"></aside>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/helpers.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/feed.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', initFeed);</script>
+</body>
+</html>

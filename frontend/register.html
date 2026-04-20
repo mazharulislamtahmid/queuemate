@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueMate | Register</title>
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-mark">Q</div>
+        <h1>Queue<span style="color:var(--accent)">Mate</span></h1>
+        <p>Create your player account</p>
+      </div>
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label">Display Name</label>
+          <div class="input-group"><span class="input-icon">👤</span>
+            <input type="text" id="regName" placeholder="YourGamertag" autocomplete="name" required>
+          </div>
+          <div class="form-error-msg" id="nameErr" style="display:none"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="input-group"><span class="input-icon">✉</span>
+            <input type="email" id="regEmail" placeholder="your@email.com" autocomplete="email" required>
+          </div>
+          <div class="form-error-msg" id="emailErr" style="display:none"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-group"><span class="input-icon">🔒</span>
+            <input type="password" id="regPassword" placeholder="Min. 6 characters" autocomplete="new-password" required>
+          </div>
+          <div class="form-error-msg" id="passErr" style="display:none"></div>
+        </div>
+        <div class="form-error-msg" id="regError" style="display:none;margin-bottom:10px"></div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="regBtn">Create Account</button>
+      </form>
+      <div class="auth-switch">Already have an account? <a href="login.html">Login here</a></div>
+    </div>
+  </div>
+  <script src="js/config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script>
+  <script src="js/helpers.js"></script><script src="js/ui.js"></script>
+  <script>
+    if (isLoggedIn()) window.location.href = 'index.html';
+    function showErr(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.style.display='flex'; }
+    function hideErr(id) { document.getElementById(id).style.display='none'; }
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name     = document.getElementById('regName').value.trim();
+      const email    = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const btn = document.getElementById('regBtn');
+      const errEl = document.getElementById('regError');
+      errEl.style.display='none'; hideErr('nameErr'); hideErr('emailErr'); hideErr('passErr');
+      let valid = true;
+      if (!name || name.length < 2) { showErr('nameErr','Name must be at least 2 characters.'); valid=false; }
+      if (!isValidEmail(email))     { showErr('emailErr','Please enter a valid email.'); valid=false; }
+      if (password.length < 6)      { showErr('passErr','Password must be at least 6 characters.'); valid=false; }
+      if (!valid) return;
+      setSubmitting(btn, true);
+      try {
+        await registerUser(name, email, password);
+        showToast('Account created! Welcome!', 'success');
+        setTimeout(() => { window.location.href = 'index.html'; }, 600);
+      } catch(err) {
+        errEl.textContent = err.message || 'Registration failed.';
+        errEl.style.display = 'flex';
+      } finally { setSubmitting(btn, false); }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueMate | Player Profile</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="navbar" class="navbar"></header>
+
+  <div class="app-shell">
+    <aside class="sidebar-left" id="sidebarLeft"></aside>
+
+    <main class="main-content">
+      <div id="dashboardProfileContent"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </main>
+
+    <aside class="sidebar-right" id="sidebarRight"></aside>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/helpers.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', initDashboard);</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueMate | Admin</title>
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <header id="navbar" class="navbar"></header>
+
+  <div class="dashboard-shell">
+    <div class="dashboard-header">
+      <h1>🛡️ Admin Panel</h1>
+      <p>Manage users and platform content. All destructive actions require confirmation.</p>
+    </div>
+
+    <!-- Admin Nav -->
+    <div class="admin-nav">
+      <button class="admin-nav-btn active" data-section="overview">📊 Overview</button>
+      <button class="admin-nav-btn" data-section="users">👥 Users</button>
+      <button class="admin-nav-btn" data-section="posts">📝 Posts</button>
+      <button class="admin-nav-btn" data-section="queuemates">🎮 QueueMates</button>
+      <button class="admin-nav-btn" data-section="tournaments">🏆 Tournaments</button>
+      <button class="admin-nav-btn" data-section="activity">📋 Activity</button>
+    </div>
+
+    <!-- Overview -->
+    <div class="admin-section active" id="admin-overview">
+      <div id="adminOverviewStats"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- Users -->
+    <div class="admin-section" id="admin-users">
+      <div class="dash-section">
+        <h2>User Management</h2>
+        <div class="filter-bar" style="margin-bottom:var(--space-md)">
+          <div class="search-input-wrap" style="max-width:320px">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="adminUserSearch" placeholder="Search by name or email…" oninput="adminUserSearch()">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="adminUsersBody"><tr><td colspan="6"><div class="spinner-wrap"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posts -->
+    <div class="admin-section" id="admin-posts">
+      <div class="dash-section">
+        <h2>Feed Posts Management</h2>
+        <div class="filter-bar" style="margin-bottom:var(--space-md)">
+          <div class="search-input-wrap" style="max-width:320px">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="adminPostSearch" placeholder="Search post content…" oninput="adminPostSearch()">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Category</th><th>Content</th><th>Author</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="adminPostsBody"><tr><td colspan="5"><div class="spinner-wrap"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- QueueMates -->
+    <div class="admin-section" id="admin-queuemates">
+      <div class="dash-section">
+        <h2>QueueMate Posts Management</h2>
+        <div class="filter-bar" style="margin-bottom:var(--space-md)">
+          <select id="adminQmGame" onchange="adminQmFilter()" style="max-width:180px">
+            <option value="">All Games</option>
+            <option value="valorant">Valorant</option><option value="pubgm">PUBG Mobile</option>
+            <option value="ff">Free Fire</option><option value="mlbb">Mobile Legends</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Game</th><th>Rank / Type</th><th>Note</th><th>Author</th><th>Action</th></tr></thead>
+            <tbody id="adminQmBody"><tr><td colspan="5"><div class="spinner-wrap"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tournaments -->
+    <div class="admin-section" id="admin-tournaments">
+      <div class="dash-section">
+        <h2>Tournaments Management</h2>
+        <div class="filter-bar" style="margin-bottom:var(--space-md)">
+          <select id="adminTournGame" onchange="adminTournFilter()" style="max-width:160px">
+            <option value="">All Games</option>
+            <option value="valorant">Valorant</option><option value="pubgm">PUBG Mobile</option>
+            <option value="ff">Free Fire</option><option value="mlbb">Mobile Legends</option>
+          </select>
+          <select id="adminTournStatus" onchange="adminTournFilter()" style="max-width:160px">
+            <option value="">All Status</option>
+            <option value="upcoming">Upcoming</option><option value="ongoing">Ongoing</option><option value="over">Over</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Game</th><th>Tier</th><th>Status</th><th>Creator</th><th>Actions</th></tr></thead>
+            <tbody id="adminTournBody"><tr><td colspan="6"><div class="spinner-wrap"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity -->
+    <div class="admin-section" id="admin-activity">
+      <div class="dash-section">
+        <h2>Activity Logs</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Actor</th><th>Action</th><th>Target</th><th>Message</th><th>Time</th></tr></thead>
+            <tbody id="adminActivityBody"><tr><td colspan="5"><div class="spinner-wrap"><div class="spinner"></div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/config.js"></script><script src="js/api.js"></script><script src="js/auth.js"></script>
+  <script src="js/helpers.js"></script><script src="js/ui.js"></script><script src="js/navbar.js"></script>
+  <script src="js/admin.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', initAdmin);</script>
+</body>
+</html>
