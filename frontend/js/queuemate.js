@@ -183,22 +183,31 @@ function renderQmCard(p) {
     <div class="qm-card-accent-bar ${cfg.accentClass||''}"></div>
     <div class="card-body qm-card-body">
       <div class="qm-card-header">
-        ${userAvatar}
-        <div style="flex:1">${userName}<div class="post-time">${formatRelative(p.createdAt)}</div></div>
+        <div class="qm-card-user">
+          ${userAvatar}
+          <div class="qm-card-user-copy">
+            ${userName}
+            <div class="post-time">${formatRelative(p.createdAt)}</div>
+          </div>
+        </div>
+        ${isOwn ? '<span class="badge badge-news">Your Post</span>' : ''}
+      </div>
+      <div class="qm-card-badges">
         ${gameBadgeHTML(p.game)}
         <span class="badge badge-news">${escHtml(p.teammateRequirement||'')}</span>
+        <span class="badge badge-news">${escHtml(cfg.teamSize||'-')}</span>
       </div>
       <div class="qm-meta-grid">
         <div><div class="qm-meta-label">Rank</div><div class="qm-meta-val">${escHtml(p.rank||'-')}</div></div>
         <div><div class="qm-meta-label">Play Type</div><div class="qm-meta-val">${escHtml(p.playType||'-')}</div></div>
         <div><div class="qm-meta-label">Playing Time</div><div class="qm-meta-val">${escHtml(p.playingTime||'-')}</div></div>
-        <div><div class="qm-meta-label">Team Size</div><div class="qm-meta-val">${escHtml(cfg.teamSize||'-')}</div></div>
+        <div><div class="qm-meta-label">Status</div><div class="qm-meta-val">${exp.text}</div></div>
       </div>
-      ${langs ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0;min-height:30px">${langs}</div>` : '<div style="min-height:30px"></div>'}
+      ${langs ? `<div class="qm-lang-row">${langs}</div>` : ''}
       <div class="qm-note">${escHtml(p.note)}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:var(--space-sm);flex-wrap:wrap;gap:8px">
+      <div class="qm-card-footer">
         <span class="expiry-label ${exp.soon?'expiring-soon':''}">Time left: ${exp.text}</span>
-        <div style="display:flex;gap:8px">
+        <div class="qm-card-actions">
           ${isOwn
             ? `<button class="btn btn-danger btn-sm" onclick="deleteQueuemate('${escHtml(p._id)}')">Delete</button>`
             : `<button class="btn btn-primary btn-sm" onclick="openMatchupModal('${escHtml(p._id)}','${escHtml(p.user?.name||'')}','${escHtml(p.user?.avatarUrl||'')}')">Matchup Request</button>`}

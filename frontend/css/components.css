@@ -246,7 +246,18 @@
 }
 .post-hero-media {
   position: relative;
-  min-height: 320px;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(180deg, rgba(11, 15, 20, 0.94), rgba(8, 11, 16, 0.98));
+}
+.post-media-1-1 {
+  aspect-ratio: 1 / 1;
+}
+.post-media-3-4 {
+  aspect-ratio: 3 / 4;
+}
+.post-media-4-3 {
+  aspect-ratio: 4 / 3;
 }
 .post-image-overlay {
   position: absolute;
@@ -305,10 +316,15 @@
 .post-image {
   width: 100%;
   margin: 0;
-  min-height: 320px;
   max-height: 520px;
   object-fit: cover;
   display: block;
+}
+.post-card-hero .post-image {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
 }
 .post-inline-actions {
   display: inline-flex;
@@ -453,7 +469,7 @@
 /* QM Card */
 .qm-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
   gap: 14px;
   align-items: stretch;
 }
@@ -461,7 +477,7 @@
   margin-bottom: 0;
   position: relative;
   height: 100%;
-  min-height: 420px;
+  min-height: 372px;
 }
 .qm-card-featured {
   display: flex;
@@ -509,30 +525,115 @@
 .qm-card-body {
   position: relative;
   z-index: 1;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex: 1;
   flex-direction: column;
 }
-.qm-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-.qm-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: var(--space-sm) 0; }
-.qm-meta-label { color: var(--text-muted); font-size: 0.73rem; margin-bottom: 2px; }
-.qm-meta-val { color: var(--text-primary); font-weight: 700; font-size: 0.87rem; }
-.qm-note {
+.qm-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.qm-card-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.qm-card-user .post-avatar {
+  width: 40px;
+  height: 40px;
+}
+.qm-card-user-copy {
+  min-width: 0;
+}
+.qm-card-user-copy .post-user-name,
+.qm-card-user-copy .post-time {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qm-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.qm-card-badges .badge {
+  padding: 4px 9px;
+  font-size: 0.68rem;
+}
+.qm-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 0 0 10px;
+}
+.qm-meta-grid > div {
+  min-width: 0;
+  padding: 8px 9px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+.qm-meta-label {
+  color: var(--text-muted);
+  font-size: 0.66rem;
+  margin-bottom: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.qm-meta-val {
+  color: var(--text-primary);
+  font-weight: 700;
   font-size: 0.82rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.qm-lang-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0 0 10px;
+}
+.qm-note {
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  line-height: 1.45;
-  margin: 10px 0;
+  line-height: 1.42;
+  margin: 0 0 10px;
   padding: 9px 10px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-md);
   border-left: 3px solid var(--border-default);
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
 }
-.expiry-label { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.qm-card-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.qm-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+.expiry-label { font-size: 0.73rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
 .expiry-label.expiring-soon { color: var(--status-ongoing); }
 
 /* Tournament Card */

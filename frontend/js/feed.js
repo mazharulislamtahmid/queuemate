@@ -7,8 +7,61 @@ let _featuredTournamentTimer = null;
 let _feedCat = '';
 let _feedSearch = '';
 let _selectedPostImage = '';
+let _selectedPostImageAspect = '';
 let _createPostExpanded = false;
 let _feedEditPostImage = '';
+let _feedEditPostImageAspect = '';
+
+const POST_IMAGE_ASPECTS = [
+  { value: '1:1', label: '1:1', ratio: 1, className: 'post-media-1-1' },
+  { value: '3:4', label: '3:4', ratio: 3 / 4, className: 'post-media-3-4' },
+  { value: '4:3', label: '4:3', ratio: 4 / 3, className: 'post-media-4-3' },
+];
+
+function normalizePostImageAspect(aspect) {
+  return POST_IMAGE_ASPECTS.find(item => item.value === aspect)?.value || '4:3';
+}
+
+function getPostImageAspectMeta(aspect) {
+  return POST_IMAGE_ASPECTS.find(item => item.value === normalizePostImageAspect(aspect)) || POST_IMAGE_ASPECTS[2];
+}
+
+function getClosestPostImageAspect(width, height) {
+  if (!width || !height) return '4:3';
+  const actualRatio = width / height;
+  let best = POST_IMAGE_ASPECTS[0];
+  let minDiff = Infinity;
+  POST_IMAGE_ASPECTS.forEach(item => {
+    const diff = Math.abs(actualRatio - item.ratio);
+    if (diff < minDiff) {
+      minDiff = diff;
+      best = item;
+    }
+  });
+  return best.value;
+}
+
+function postImageAspectClass(aspect) {
+  return getPostImageAspectMeta(aspect).className;
+}
+
+async function readPostImageFile(file) {
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+    reader.onerror = () => reject(new Error('Failed to read image'));
+    reader.readAsDataURL(file);
+  });
+
+  const imageAspect = await new Promise(resolve => {
+    const probe = new Image();
+    probe.onload = () => resolve(getClosestPostImageAspect(probe.naturalWidth, probe.naturalHeight));
+    probe.onerror = () => resolve('4:3');
+    probe.src = dataUrl;
+  });
+
+  return { dataUrl, imageAspect };
+}
 
 async function initFeed() {
   initNavbar();
@@ -156,47 +209,50 @@ function renderCreateBox() {
   const user = getCurrentUser();
   const loggedIn = isLoggedIn();
 
-  el.innerHTML = `<div class="create-box create-box-shell ${_createPostExpanded ? 'expanded' : ''}">
-    <div class="create-box-collapsed" ${loggedIn ? 'onclick="expandCreateBox()"' : ''}>
+  el.innerHTML = `<div class="create-box create-box-shell feed-create-shell ${_createPostExpanded ? 'expanded' : ''}">
+    <div class="create-box-collapsed feed-create-collapsed" ${loggedIn ? 'onclick="expandCreateBox()"' : ''}>
       <img src="${avatarFallback(user?.avatarUrl)}" class="post-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">
       <div class="create-box-collapsed-copy">
         <div class="create-box-collapsed-title">${loggedIn ? `What's on your mind, ${escHtml(user?.name?.split(' ')[0] || 'player')}?` : 'Join the QueueMate conversation'}</div>
-        <div class="create-box-collapsed-subtitle">${loggedIn ? 'Share news, results, or a recruitment update.' : 'Log in to create a post for the community.'}</div>
+        <div class="create-box-collapsed-subtitle">${loggedIn ? 'Share a quick update with one compact post.' : 'Log in to create a post for the community.'}</div>
       </div>
       ${loggedIn ? '<button type="button" class="btn btn-ghost btn-sm">Create Post</button>' : '<a href="login.html" class="btn btn-ghost btn-sm">Login</a>'}
     </div>
     ${loggedIn ? `
-      <div class="create-box-expander">
-        <div class="create-box-header">
-          <div class="create-box-title-wrap">
+      <div class="create-box-expander feed-create-expander">
+        <div class="create-box-header feed-create-header">
+          <div class="create-box-title-wrap feed-create-title-wrap">
             <div class="create-box-badge">Quick Share</div>
             <h3>Post an update</h3>
-            <p>Drop a news update, result, or recruitment call for your community.</p>
+            <p>Choose a category, add a photo if you want, and publish fast.</p>
           </div>
         </div>
-        <div class="form-group"><textarea id="postContent" rows="4" placeholder="Share news, results, recruitment calls..." style="resize:vertical" maxlength="2000"></textarea></div>
-        <div class="create-box-actions">
-          <select id="postCategory" style="flex:1;min-width:150px">
-            <option value="">Choose category</option>
-            <option value="news">News</option>
-            <option value="result">Result</option>
-            <option value="recruitment">Recruitment</option>
-          </select>
-          <button type="button" class="btn btn-ghost" onclick="document.getElementById('postImageFile')?.click()">Add Photo</button>
+        <div class="form-group">
+          <textarea id="postContent" class="feed-create-textarea" rows="3" placeholder="Share news, results, recruitment calls..." style="resize:vertical" maxlength="2000"></textarea>
+        </div>
+        <input type="hidden" id="postCategory" value="">
+        <div class="feed-create-meta-row">
+          <div class="feed-category-picker" role="group" aria-label="Choose post category">
+            <button type="button" class="feed-category-pill" data-category="news" onclick="setPostCategory('news')">News</button>
+            <button type="button" class="feed-category-pill" data-category="result" onclick="setPostCategory('result')">Result</button>
+            <button type="button" class="feed-category-pill" data-category="recruitment" onclick="setPostCategory('recruitment')">Recruitment</button>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('postImageFile')?.click()">Add Photo</button>
         </div>
         <div class="form-group">
-          <div class="device-upload-box">
+          <div class="device-upload-box feed-upload-box">
             <input type="file" id="postImageFile" accept="image/*" hidden onchange="handlePostImageSelect(event)">
             <div class="device-upload-header">
               <div>
                 <div class="device-upload-title">Photo upload</div>
-                <div class="device-upload-subtitle">Choose an image from your device.</div>
+                <div class="device-upload-subtitle">Supports 1:1, 3:4, and 4:3 post photos.</div>
               </div>
             </div>
-            <div id="postImagePreviewWrap" class="device-upload-preview" style="display:none">
-              <img id="postImagePreview" alt="Selected upload preview">
+            <div id="postImagePreviewWrap" class="device-upload-preview feed-upload-preview" style="display:none">
+              <img id="postImagePreview" class="feed-post-preview" alt="Selected upload preview">
               <button type="button" class="btn btn-danger btn-sm" onclick="clearPostImage()">Remove</button>
             </div>
+            <div id="postImageAspectHint" class="form-hint feed-image-hint">No photo selected</div>
           </div>
         </div>
         <div class="create-box-footer">
@@ -205,6 +261,21 @@ function renderCreateBox() {
         </div>
       </div>` : ''}
   </div>`;
+}
+
+function setPostCategory(category) {
+  const input = document.getElementById('postCategory');
+  if (!input) return;
+  input.value = input.value === category ? '' : category;
+  document.querySelectorAll('#createPostBox .feed-category-pill').forEach(button => {
+    button.classList.toggle('active', button.dataset.category === input.value);
+  });
+}
+
+function setPostImageHint(targetId, aspect) {
+  const hint = document.getElementById(targetId);
+  if (!hint) return;
+  hint.textContent = aspect ? `Detected format: ${normalizePostImageAspect(aspect)}` : 'No photo selected';
 }
 
 async function submitPost() {
@@ -216,23 +287,13 @@ async function submitPost() {
   const btn = document.getElementById('submitPostBtn');
   setSubmitting(btn, true);
   try {
-    const formData = new FormData();
-    formData.append('content', content);
-    formData.append('category', category);
-    if (_selectedPostImage) formData.append('imageUrl', _selectedPostImage);
-
-    const res = await fetch(`${BASE_URL}/posts`, {
-      method: 'POST',
-      headers: (() => {
-        const token = getToken();
-        return token ? { Authorization: `Bearer ${token}` } : {};
-      })(),
-      body: formData,
-    });
-
-    await _handle(res);
+    await apiPost('/posts', {
+      content,
+      category,
+      imageUrl: _selectedPostImage || '',
+      imageAspect: _selectedPostImage ? normalizePostImageAspect(_selectedPostImageAspect) : '',
+    }, true);
     document.getElementById('postContent').value = '';
-    document.getElementById('postCategory').value = '';
     clearPostImage();
     collapseCreateBox();
     showToast('Post created!', 'success');
@@ -244,7 +305,7 @@ async function submitPost() {
   }
 }
 
-function handlePostImageSelect(event) {
+async function handlePostImageSelect(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -257,29 +318,38 @@ function handlePostImageSelect(event) {
     event.target.value = '';
     return;
   }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    _selectedPostImage = typeof reader.result === 'string' ? reader.result : '';
+  try {
+    const { dataUrl, imageAspect } = await readPostImageFile(file);
+    _selectedPostImage = dataUrl;
+    _selectedPostImageAspect = imageAspect;
     const wrap = document.getElementById('postImagePreviewWrap');
     const img = document.getElementById('postImagePreview');
     if (wrap && img && _selectedPostImage) {
       img.src = _selectedPostImage;
+      img.className = `feed-post-preview ${postImageAspectClass(_selectedPostImageAspect)}`;
       wrap.style.display = 'flex';
     }
-  };
-  reader.onerror = () => showToast('Failed to read image', 'error');
-  reader.readAsDataURL(file);
+    setPostImageHint('postImageAspectHint', _selectedPostImageAspect);
+  } catch (error) {
+    showToast(error.message || 'Failed to read image', 'error');
+  } finally {
+    event.target.value = '';
+  }
 }
 
 function clearPostImage() {
   _selectedPostImage = '';
+  _selectedPostImageAspect = '';
   const input = document.getElementById('postImageFile');
   const wrap = document.getElementById('postImagePreviewWrap');
   const img = document.getElementById('postImagePreview');
   if (input) input.value = '';
-  if (img) img.src = '';
+  if (img) {
+    img.src = '';
+    img.className = 'feed-post-preview';
+  }
   if (wrap) wrap.style.display = 'none';
+  setPostImageHint('postImageAspectHint', '');
 }
 
 function expandCreateBox() {
@@ -356,13 +426,14 @@ function renderPostCard(p) {
   const likeCount = p.likesCount ?? p.likes?.length ?? 0;
   const commentCount = p.comments?.length || 0;
   const hasImage = !!p.imageUrl;
+  const imageAspectClass = postImageAspectClass(p.imageAspect);
   const userAvatar = profileAnchor(p.user, `<img src="${avatarFallback(p.user?.avatarUrl)}" class="post-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">`, 'profile-entry-link profile-avatar-link');
   const userName = profileAnchor(p.user, `<div class="post-user-name">${escHtml(p.user?.name || 'Unknown')}</div>`, 'profile-entry-link');
   return `<div class="card post-card ${hasImage ? 'post-card-hero' : 'post-card-text'}" id="post-${escHtml(p._id)}">
     <div class="card-body">
       ${renderPostMenu(p)}
       ${hasImage ? `
-        <div class="post-hero-media">
+        <div class="post-hero-media ${imageAspectClass}">
           <img src="${escHtml(p.imageUrl)}" class="post-image" alt="" onerror="this.style.display='none'">
           <div class="post-image-overlay"></div>
           <div class="post-floating-profile">
@@ -539,6 +610,7 @@ function openFeedEditPostModal(postId) {
   const post = _allPosts.find(p => p._id === postId);
   if (!post) return;
   _feedEditPostImage = post.imageUrl || '';
+  _feedEditPostImageAspect = post.imageAspect || '';
   document.querySelectorAll('.post-menu-dropdown.open').forEach(menu => menu.classList.remove('open'));
   const body = `
     <div class="form-group">
@@ -555,19 +627,20 @@ function openFeedEditPostModal(postId) {
     </div>
     <div class="form-group">
       <label class="form-label">Photo</label>
-      <div class="device-upload-box">
+      <div class="device-upload-box feed-upload-box">
         <input type="file" id="feedEditPostImageFile" accept="image/*" hidden onchange="handleFeedEditPostImageSelect(event)">
         <div class="device-upload-header">
           <div>
             <div class="device-upload-title">Choose from your device</div>
-            <div class="device-upload-subtitle">Upload a new image or remove the current one.</div>
+            <div class="device-upload-subtitle">Supports 1:1, 3:4, and 4:3 post photos.</div>
           </div>
           <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('feedEditPostImageFile')?.click()">Browse</button>
         </div>
-        <div id="feedEditPostImagePreviewWrap" class="device-upload-preview" style="display:${post.imageUrl ? 'flex' : 'none'}">
-          <img id="feedEditPostImagePreview" class="poster-preview" src="${escHtml(post.imageUrl || '')}" alt="Post image preview" onerror="this.style.display='none'">
+        <div id="feedEditPostImagePreviewWrap" class="device-upload-preview feed-upload-preview" style="display:${post.imageUrl ? 'flex' : 'none'}">
+          <img id="feedEditPostImagePreview" class="feed-post-preview ${post.imageUrl ? postImageAspectClass(post.imageAspect) : ''}" src="${escHtml(post.imageUrl || '')}" alt="Post image preview" onerror="this.style.display='none'">
           <button type="button" class="btn btn-danger btn-sm" onclick="clearFeedEditPostImage()">Remove</button>
         </div>
+        <div id="feedEditPostImageAspectHint" class="form-hint feed-image-hint">${post.imageUrl ? `Detected format: ${normalizePostImageAspect(post.imageAspect)}` : 'No photo selected'}</div>
       </div>
     </div>
   `;
@@ -591,37 +664,42 @@ function readFeedImageFile(event, onLoad) {
     event.target.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => onLoad(typeof reader.result === 'string' ? reader.result : '');
-  reader.onerror = () => showToast('Failed to read image', 'error');
-  reader.readAsDataURL(file);
-  event.target.value = '';
+  readPostImageFile(file)
+    .then(result => onLoad(result))
+    .catch(error => showToast(error.message || 'Failed to read image', 'error'))
+    .finally(() => { event.target.value = ''; });
 }
 
 function handleFeedEditPostImageSelect(event) {
-  readFeedImageFile(event, result => {
-    _feedEditPostImage = result;
+  readFeedImageFile(event, ({ dataUrl, imageAspect }) => {
+    _feedEditPostImage = dataUrl;
+    _feedEditPostImageAspect = imageAspect;
     const wrap = document.getElementById('feedEditPostImagePreviewWrap');
     const img = document.getElementById('feedEditPostImagePreview');
     if (wrap && img) {
-      img.src = result;
+      img.src = dataUrl;
+      img.className = `feed-post-preview ${postImageAspectClass(_feedEditPostImageAspect)}`;
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
+    setPostImageHint('feedEditPostImageAspectHint', _feedEditPostImageAspect);
   });
 }
 
 function clearFeedEditPostImage() {
   _feedEditPostImage = '';
+  _feedEditPostImageAspect = '';
   const input = document.getElementById('feedEditPostImageFile');
   const wrap = document.getElementById('feedEditPostImagePreviewWrap');
   const img = document.getElementById('feedEditPostImagePreview');
   if (input) input.value = '';
   if (img) {
     img.src = '';
+    img.className = 'feed-post-preview';
     img.style.display = 'none';
   }
   if (wrap) wrap.style.display = 'none';
+  setPostImageHint('feedEditPostImageAspectHint', '');
 }
 
 async function saveFeedEditedPost(postId) {
@@ -629,10 +707,16 @@ async function saveFeedEditedPost(postId) {
   const category = document.getElementById('feedEditPostCategory')?.value;
   const imageUrl = _feedEditPostImage || '';
   if (!content) return showToast('Content is required', 'error');
+  if (!category) return showToast('Please select a category', 'error');
   if (imageUrl && !isValidUrl(imageUrl)) return showToast('Invalid image URL', 'error');
 
   try {
-    const d = await apiPut(`/posts/${postId}`, { content, category, imageUrl }, true);
+    const d = await apiPut(`/posts/${postId}`, {
+      content,
+      category,
+      imageUrl,
+      imageAspect: imageUrl ? normalizePostImageAspect(_feedEditPostImageAspect) : '',
+    }, true);
     const idx = _allPosts.findIndex(p => p._id === postId);
     if (idx !== -1) _allPosts[idx] = { ..._allPosts[idx], ...d.post };
     closeModal(document.getElementById('feedEditPostModal'));

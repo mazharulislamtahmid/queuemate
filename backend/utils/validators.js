@@ -44,6 +44,10 @@ function validateContentLength(content) {
   return typeof content === 'string' && content.length > 0 && content.length <= 2000;
 }
 
+function validatePostImageAspect(aspect) {
+  return !aspect || ['1:1', '3:4', '4:3'].includes(aspect);
+}
+
 function validateDateOrder(startDate, endDate) {
   return new Date(startDate) < new Date(endDate);
 }
@@ -55,5 +59,5 @@ function validatePrizePool(prize) {
 module.exports = {
   validateEmail, validatePassword, validateUrl, validateGame, validateRank,
   validateTeammateRequirement, validateLanguages, validateSocialLinks,
-  validateNoteLength, validateContentLength, validateDateOrder, validatePrizePool,
+  validateNoteLength, validateContentLength, validatePostImageAspect, validateDateOrder, validatePrizePool,
 };

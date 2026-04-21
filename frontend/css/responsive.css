@@ -42,6 +42,10 @@
     align-items: start;
     flex-direction: column;
   }
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 768px) {
@@ -56,31 +60,43 @@
     gap: var(--space-md);
   }
   .navbar {
-    padding: 0 var(--space-md);
+    padding: 0 12px;
     height: 68px;
-    justify-content: flex-start;
+    justify-content: space-between;
+    gap: 10px;
   }
   .home-page .app-shell {
     padding-top: calc(68px + var(--space-sm));
   }
   .navbar-logo {
     position: static;
+    gap: 8px;
+  }
+  .navbar-logo .logo-text {
+    display: none;
   }
   .navbar-nav {
     display: none;
   }
   .navbar-actions {
-    position: static;
-    margin-left: auto;
+    display: none;
   }
   .navbar-mailbox-btn span:not(.navbar-mailbox-badge) {
     display: none;
   }
   .navbar-hamburger {
     display: flex;
+    margin-left: 0;
   }
   .mobile-menu {
     top: 68px;
+    left: 8px;
+    right: 8px;
+    max-height: calc(100vh - 84px);
+    overflow-y: auto;
+  }
+  .mobile-menu a {
+    padding: 12px 14px;
   }
   .dashboard-shell {
     padding: var(--space-md) var(--space-sm);
@@ -106,10 +122,43 @@
   .featured-hero h1 {
     font-size: 1.9rem;
   }
+  .section-header,
+  .create-box-header,
+  .device-upload-header,
+  .mailbox-chat-user {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .create-box-collapsed {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: var(--space-md);
+  }
+  .create-box-collapsed .btn,
+  .create-box-collapsed a.btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .feed-create-meta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .feed-category-picker {
+    width: 100%;
+  }
+  .feed-category-pill {
+    flex: 1 1 calc(50% - 8px);
+  }
   .feed-toolbar,
   .feed-list,
   .create-box,
-  .create-form-card {
+  .create-form-card,
+  .dash-section,
+  .sidebar-panel,
+  .sidebar-card,
+  .rail-card,
+  .qm-header-section,
+  .create-header,
+  .welcome-banner {
     padding: var(--space-md);
   }
   .auth-card {
@@ -150,11 +199,83 @@
   .profile-game-tags {
     justify-content: center;
   }
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-bar > * {
+    width: 100%;
+    max-width: none;
+  }
   .filter-bar select {
-    max-width: 100%;
+    max-width: none;
+  }
+  .search-input-wrap {
+    min-width: 0;
+    width: 100%;
+  }
+  .create-box-footer,
+  .modal-footer,
+  .tourn-card-footer,
+  .tourn-detail-actions,
+  .mailbox-actions,
+  .widget-inline-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .create-box-footer .btn,
+  .create-box-footer a.btn,
+  .modal-footer .btn,
+  .modal-footer a.btn,
+  .tourn-card-footer .btn,
+  .tourn-card-footer a.btn,
+  .tourn-detail-actions .btn,
+  .tourn-detail-actions a.btn,
+  .mailbox-actions .btn,
+  .mailbox-actions a.btn,
+  .widget-inline-actions .btn,
+  .widget-inline-actions a.btn {
+    width: 100%;
   }
   .modal {
     max-height: 95vh;
+  }
+  .post-card-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .post-card-header-side {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .post-inline-actions {
+    flex-wrap: wrap;
+  }
+  .qm-card-header,
+  .mailbox-item {
+    gap: 8px;
+  }
+  .qm-card-header {
+    flex-wrap: wrap;
+  }
+  .qm-card-footer,
+  .qm-card-actions {
+    width: 100%;
+  }
+  .qm-card-actions .btn,
+  .qm-card-actions a.btn {
+    width: 100%;
+  }
+  .mailbox-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .mailbox-item > .mailbox-actions,
+  .mailbox-item > .mailbox-status-pill,
+  .mailbox-item > .mailbox-unread {
+    grid-column: 1 / -1;
+  }
+  .mailbox-panel {
+    padding: var(--space-sm);
   }
   .tabs-bar {
     overflow-x: auto;
@@ -196,6 +317,25 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .device-upload-preview {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .device-upload-preview img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+  }
+  .feed-category-pill {
+    flex-basis: 100%;
+  }
+  .post-card-header-side {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .post-card-text .post-card-header {
+    padding: 16px 48px 0 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -209,5 +349,21 @@
   }
   .featured-hero h1 {
     font-size: 1.55rem;
+  }
+  .navbar-logo .logo-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+  }
+  .feed-toolbar,
+  .feed-list {
+    padding: 12px;
+  }
+  .post-copy-wrap {
+    padding: 14px 14px 0;
+  }
+  .comment-section {
+    margin: var(--space-sm) 14px 0;
   }
 }

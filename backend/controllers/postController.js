@@ -1,6 +1,6 @@
 const Post = require('../models/Post');
 const { logActivity } = require('../utils/activityLogger');
-const { validateUrl, validateContentLength } = require('../utils/validators');
+const { validateUrl, validateContentLength, validatePostImageAspect } = require('../utils/validators');
 
 const getPosts = async (req, res) => {
   try {
@@ -30,12 +30,19 @@ const getPosts = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
-    const { content, imageUrl, category } = req.body;
+    const { content, imageUrl, imageAspect, category } = req.body;
     if (!validateContentLength(content)) return res.status(400).json({ message: 'Content is required and must be ≤ 2000 characters.' });
     if (!['news','result','recruitment'].includes(category)) return res.status(400).json({ message: 'Invalid category.' });
     if (imageUrl && !validateUrl(imageUrl)) return res.status(400).json({ message: 'Invalid image URL.' });
+    if (!validatePostImageAspect(imageAspect)) return res.status(400).json({ message: 'Invalid image aspect.' });
 
-    const post = await Post.create({ user: req.user._id, content: content.trim(), imageUrl: imageUrl || '', category });
+    const post = await Post.create({
+      user: req.user._id,
+      content: content.trim(),
+      imageUrl: imageUrl || '',
+      imageAspect: imageUrl ? (imageAspect || '') : '',
+      category,
+    });
     await post.populate('user', 'name avatarUrl coverPhotoUrl');
     await logActivity({ actor: req.user._id, actionType: 'create_post', targetType: 'post', targetId: post._id, message: `${req.user.name} created a post.` });
     res.status(201).json({ post });
@@ -83,7 +90,7 @@ const updatePost = async (req, res) => {
     if (!post) return res.status(404).json({ message: 'Post not found.' });
     if (post.user.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized.' });
 
-    const { content, imageUrl, category } = req.body;
+    const { content, imageUrl, imageAspect, category } = req.body;
     if (content) {
       if (!validateContentLength(content)) return res.status(400).json({ message: 'Content must be ≤ 2000 characters.' });
       post.content = content.trim();
@@ -95,6 +102,11 @@ const updatePost = async (req, res) => {
     if (imageUrl !== undefined) {
       if (imageUrl && !validateUrl(imageUrl)) return res.status(400).json({ message: 'Invalid image URL.' });
       post.imageUrl = imageUrl;
+      if (!imageUrl) post.imageAspect = '';
+    }
+    if (imageAspect !== undefined) {
+      if (!validatePostImageAspect(imageAspect)) return res.status(400).json({ message: 'Invalid image aspect.' });
+      post.imageAspect = post.imageUrl ? imageAspect : '';
     }
     await post.save();
     await post.populate('user', 'name avatarUrl coverPhotoUrl');

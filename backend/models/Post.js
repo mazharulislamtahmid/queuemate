@@ -10,6 +10,7 @@ const postSchema = new mongoose.Schema({
   user:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   content:  { type: String, required: true, maxlength: 2000 },
   imageUrl: { type: String, default: '' },
+  imageAspect: { type: String, enum: ['', '1:1', '3:4', '4:3'], default: '' },
   category: { type: String, enum: ['news','result','recruitment'], required: true },
   likes:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [commentSchema],
