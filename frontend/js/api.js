@@ -5,12 +5,52 @@ function _headers(auth) {
   return h;
 }
 
+const RENDER_API_WARMUP_ENABLED = /\.onrender\.com\/api$/i.test(BASE_URL);
+let _apiWarm = false;
+let _apiWarmupPromise = null;
+
+function _sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function _ensureApiReady() {
+  if (!RENDER_API_WARMUP_ENABLED || _apiWarm) return;
+  if (_apiWarmupPromise) return _apiWarmupPromise;
+
+  _apiWarmupPromise = (async () => {
+    for (let attempt = 0; attempt < 7; attempt += 1) {
+      try {
+        const res = await fetch(`${BASE_URL}/health`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          _apiWarm = true;
+          return;
+        }
+      } catch {}
+
+      if (attempt < 6) await _sleep(10000);
+    }
+
+    throw new Error('The Render backend is still waking up. Please wait about a minute and try again.');
+  })();
+
+  try {
+    await _apiWarmupPromise;
+  } finally {
+    if (!_apiWarm) _apiWarmupPromise = null;
+  }
+}
+
 async function _request(endpoint, options) {
   try {
+    await _ensureApiReady();
     const res = await fetch(`${BASE_URL}${endpoint}`, options);
     return _handle(res);
   } catch (err) {
-    throw new Error('Could not reach the server. Check the API URL and make sure the backend is running.');
+    throw new Error(err?.message || 'Could not reach the server. Check the API URL and make sure the backend is running.');
   }
 }
 
