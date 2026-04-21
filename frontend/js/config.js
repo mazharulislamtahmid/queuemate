@@ -1,4 +1,6 @@
-const BASE_URL = 'https://queuemate-api.onrender.com';
+const API_ORIGIN = 'https://queuemate-api.onrender.com';
+const _normalizedApiOrigin = API_ORIGIN.replace(/\/+$/, '');
+const BASE_URL = _normalizedApiOrigin.endsWith('/api') ? _normalizedApiOrigin : `${_normalizedApiOrigin}/api`;
 
 const GAME_CONFIG = {
   valorant: { label:'Valorant', color:'#e05260', badgeClass:'badge-valorant', accentClass:'qm-accent-valorant', teamSize:'5v5', image:'assets/game-valorant.jpg', ranks:['Iron','Bronze','Silver','Gold','Platinum','Diamond','Ascendant','Immortal','Radiant'], teammates:['Duo','3 Players','Full Team'] },

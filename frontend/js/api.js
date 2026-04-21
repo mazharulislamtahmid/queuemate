@@ -5,6 +5,15 @@ function _headers(auth) {
   return h;
 }
 
+async function _request(endpoint, options) {
+  try {
+    const res = await fetch(`${BASE_URL}${endpoint}`, options);
+    return _handle(res);
+  } catch (err) {
+    throw new Error('Could not reach the server. Check the API URL and make sure the backend is running.');
+  }
+}
+
 async function _handle(res) {
   let data;
   try { data = await res.json(); } catch { data = {}; }
@@ -14,18 +23,14 @@ async function _handle(res) {
 }
 
 async function apiGet(endpoint, auth = false) {
-  const res = await fetch(`${BASE_URL}${endpoint}`, { method:'GET', headers:_headers(auth) });
-  return _handle(res);
+  return _request(endpoint, { method:'GET', headers:_headers(auth) });
 }
 async function apiPost(endpoint, data, auth = false) {
-  const res = await fetch(`${BASE_URL}${endpoint}`, { method:'POST', headers:_headers(auth), body:JSON.stringify(data) });
-  return _handle(res);
+  return _request(endpoint, { method:'POST', headers:_headers(auth), body:JSON.stringify(data) });
 }
 async function apiPut(endpoint, data, auth = false) {
-  const res = await fetch(`${BASE_URL}${endpoint}`, { method:'PUT', headers:_headers(auth), body:JSON.stringify(data) });
-  return _handle(res);
+  return _request(endpoint, { method:'PUT', headers:_headers(auth), body:JSON.stringify(data) });
 }
 async function apiDelete(endpoint, auth = false) {
-  const res = await fetch(`${BASE_URL}${endpoint}`, { method:'DELETE', headers:_headers(auth) });
-  return _handle(res);
+  return _request(endpoint, { method:'DELETE', headers:_headers(auth) });
 }
