@@ -1,16 +1,43 @@
 const mongoose = require('mongoose');
 
+mongoose.set('bufferCommands', false);
+
+function getMongoState() {
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+  return states[mongoose.connection.readyState] || 'unknown';
+}
+
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log(`MongoDB connected: ${conn.connection.host}`);
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
+  const mongoUri = process.env.MONGO_URI?.trim();
+  if (!mongoUri) {
+    throw new Error('MONGO_URI is not set.');
   }
+
+  if (mongoose.connection.readyState === 1) return mongoose.connection;
+
+  const conn = await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 10000,
+  });
+
+  console.log(`MongoDB connected: ${conn.connection.host}`);
+  return conn.connection;
 };
 
-module.exports = connectDB;
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connection state: connected');
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB connection state: disconnected');
+});
+
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err.message);
+});
+
+module.exports = { connectDB, getMongoState };

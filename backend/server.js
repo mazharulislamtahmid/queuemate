@@ -2,13 +2,10 @@ require('dotenv').config();
 const express  = require('express');
 const cors     = require('cors');
 const morgan   = require('morgan');
-const connectDB = require('./config/db');
+const { connectDB, getMongoState } = require('./config/db');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
-
-// Connect to MongoDB
-connectDB();
 
 // Middleware
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','PATCH'], allowedHeaders: ['Content-Type','Authorization'] }));
@@ -26,7 +23,11 @@ app.use('/api/social',      require('./routes/socialRoutes'));
 app.use('/api/admin',       require('./routes/adminRoutes'));
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', env: process.env.NODE_ENV }));
+app.get('/api/health', (req, res) => {
+  const db = getMongoState();
+  const status = db === 'connected' ? 'ok' : 'degraded';
+  res.status(db === 'connected' ? 200 : 503).json({ status, env: process.env.NODE_ENV, db });
+});
 
 // 404
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
@@ -35,6 +36,17 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`QueueMate server running on port ${PORT}`));
+
+async function startServer() {
+  try {
+    await connectDB();
+    app.listen(PORT, () => console.log(`QueueMate server running on port ${PORT}`));
+  } catch (err) {
+    console.error('Failed to start server:', err.message);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 module.exports = app;
