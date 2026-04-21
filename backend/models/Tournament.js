@@ -11,6 +11,7 @@ const tournamentSchema = new mongoose.Schema({
   description:      { type: String, default: '' },
   organizerName:    { type: String, required: true, trim: true },
   registrationLink: { type: String, default: '' },
+  socialLink:       { type: String, default: '' },
   startDate:        { type: Date, required: true },
   endDate:          { type: Date, required: true },
   resultImageUrl:   { type: String, default: '' },

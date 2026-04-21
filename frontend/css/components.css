@@ -231,14 +231,17 @@
   text-decoration: none;
 }
 .profile-entry-link:hover .post-user-name,
-.profile-entry-link:hover .comment-author {
+.profile-entry-link:hover .comment-author,
+.profile-entry-link:hover .widget-item-title,
+.profile-entry-link:hover .tourn-organizer {
   color: var(--accent);
 }
 .profile-avatar-link {
   display: inline-flex;
 }
 .profile-avatar-link:hover .post-avatar,
-.profile-avatar-link:hover .comment-avatar {
+.profile-avatar-link:hover .comment-avatar,
+.profile-avatar-link:hover .widget-avatar {
   border-color: rgba(118, 240, 210, 0.45);
 }
 .post-hero-media {
@@ -545,6 +548,12 @@
   border-top: 1px solid var(--border-subtle);
   flex-wrap: wrap;
 }
+.tourn-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
 .result-indicator {
   display: flex;
   align-items: center;
@@ -570,6 +579,9 @@
   padding: 0;
   overflow: hidden;
   transition: box-shadow var(--ease), border-color var(--ease), transform var(--ease);
+}
+.create-box-shell.expanded {
+  overflow: visible;
 }
 .create-box-shell:hover {
   border-color: var(--border-default);
@@ -607,8 +619,9 @@
   transition: max-height 0.28s ease, opacity 0.22s ease, transform 0.28s ease, padding 0.28s ease;
 }
 .create-box-shell.expanded .create-box-expander {
-  max-height: 720px;
+  max-height: 2400px;
   opacity: 1;
+  overflow: visible;
   padding: 0 var(--space-lg) var(--space-lg);
   transform: translateY(0);
 }

@@ -481,11 +481,21 @@ function renderFriendRequestRailCard(elementId, data, options = {}) {
   if (incoming.length) {
     content = incoming.map(request => {
       const user = request.sender || request.otherUser;
+      const avatar = profileAnchor(
+        user,
+        `<img src="${avatarFallback(user?.avatarUrl)}" class="widget-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">`,
+        'profile-entry-link profile-avatar-link'
+      );
+      const name = profileAnchor(
+        user,
+        `<div class="widget-item-title">${escHtml(user?.name || 'Player')}</div>`,
+        'profile-entry-link'
+      );
       return `
-        <div class="widget-item widget-item-card">
-          <img src="${avatarFallback(user?.avatarUrl)}" class="widget-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">
+        <div class="widget-item widget-item-card widget-item-static">
+          ${avatar}
           <div class="widget-item-stack">
-            <div class="widget-item-title">${escHtml(user?.name || 'Player')}</div>
+            ${name}
             <div class="widget-item-sub">Sent you a friend request · ${formatRelative(request.createdAt)}</div>
             <div class="widget-inline-actions">
               <button class="btn btn-success btn-sm" onclick="respondFriendRequest('${escHtml(request._id)}','accepted',{ rerenderDashboardPage: true })">Accept</button>
@@ -498,11 +508,21 @@ function renderFriendRequestRailCard(elementId, data, options = {}) {
   } else if (outgoing.length) {
     content = outgoing.map(request => {
       const user = request.receiver || request.otherUser;
+      const avatar = profileAnchor(
+        user,
+        `<img src="${avatarFallback(user?.avatarUrl)}" class="widget-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">`,
+        'profile-entry-link profile-avatar-link'
+      );
+      const name = profileAnchor(
+        user,
+        `<div class="widget-item-title">${escHtml(user?.name || 'Player')}</div>`,
+        'profile-entry-link'
+      );
       return `
-        <div class="widget-item widget-item-card">
-          <img src="${avatarFallback(user?.avatarUrl)}" class="widget-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">
+        <div class="widget-item widget-item-card widget-item-static">
+          ${avatar}
           <div class="widget-item-stack">
-            <div class="widget-item-title">${escHtml(user?.name || 'Player')}</div>
+            ${name}
             <div class="widget-item-sub">Request sent · ${formatRelative(request.createdAt)}</div>
           </div>
           <div class="mailbox-status-pill">Pending</div>
@@ -539,13 +559,13 @@ function renderFriendListRailCard(elementId, data, options = {}) {
 
   const content = friends.length
     ? friends.map(item => `
-      <div class="widget-item widget-item-card widget-friend-card ${item.isActive ? 'active' : ''}">
-        <div class="widget-avatar-wrap">
+      <div class="widget-item widget-item-card widget-item-static widget-friend-card ${item.isActive ? 'active' : ''}">
+        ${profileAnchor(item.friend, `<div class="widget-avatar-wrap">
           <img src="${avatarFallback(item.friend?.avatarUrl)}" class="widget-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">
           <span class="friend-status-dot ${item.isActive ? 'online' : 'offline'}"></span>
-        </div>
+        </div>`, 'profile-entry-link profile-avatar-link')}
         <div class="widget-item-stack">
-          <div class="widget-item-title">${escHtml(item.friend?.name || 'Friend')}</div>
+          ${profileAnchor(item.friend, `<div class="widget-item-title">${escHtml(item.friend?.name || 'Friend')}</div>`, 'profile-entry-link')}
           <div class="widget-item-sub">${item.isActive ? 'Online now' : (item.lastSeenAt ? `Active ${formatRelative(item.lastSeenAt)}` : `Connected ${formatRelative(item.createdAt)}`)}</div>
         </div>
         <button class="btn btn-ghost btn-sm" onclick="openMailbox('${escHtml(item._id)}')">Chat</button>
@@ -645,54 +665,25 @@ async function initSidebarRight() {
   if (!el) return;
 
   const loggedIn = isLoggedIn();
-
   el.innerHTML = `
     <div class="right-rail">
-      ${loggedIn ? `
-        <div class="sidebar-card rail-card" id="socialFriendRequestsRail">
-          <div class="widget-header">
-            <div>
-              <div class="widget-eyebrow">Social</div>
-              <h4>Friend Requests</h4>
-            </div>
-          </div>
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-        <div class="sidebar-card rail-card" id="socialFriendsRail">
-          <div class="widget-header">
-            <div>
-              <div class="widget-eyebrow">Crew</div>
-              <h4>Friend List</h4>
-            </div>
-          </div>
-          <p class="text-muted text-sm">Loading...</p>
-        </div>` : ''}
-      <div class="sidebar-card rail-card" id="wQueuemates">
+      <div class="sidebar-card rail-card" id="socialFriendRequestsRail">
         <div class="widget-header">
           <div>
-            <div class="widget-eyebrow">Right Rail</div>
-            <h4>Active QueueMate Posts</h4>
+            <div class="widget-eyebrow">Social</div>
+            <h4>Friend Requests</h4>
           </div>
         </div>
-        <p class="text-muted text-sm">Loading...</p>
+        <p class="text-muted text-sm">${loggedIn ? 'Loading...' : 'Log in to see your friend requests.'}</p>
       </div>
-      <div class="sidebar-card rail-card" id="wTournaments">
+      <div class="sidebar-card rail-card" id="socialFriendsRail">
         <div class="widget-header">
           <div>
-            <div class="widget-eyebrow">Events</div>
-            <h4>Latest Tournaments</h4>
+            <div class="widget-eyebrow">Crew</div>
+            <h4>Friend List</h4>
           </div>
         </div>
-        <p class="text-muted text-sm">Loading...</p>
-      </div>
-      <div class="sidebar-card rail-card" id="wPosts">
-        <div class="widget-header">
-          <div>
-            <div class="widget-eyebrow">Community</div>
-            <h4>Latest Updates</h4>
-          </div>
-        </div>
-        <p class="text-muted text-sm">Loading...</p>
+        <p class="text-muted text-sm">${loggedIn ? 'Loading...' : 'Log in to see your friend list.'}</p>
       </div>
     </div>
   `;
@@ -701,6 +692,8 @@ async function initSidebarRight() {
     if (!_mailboxOverview) await loadMailboxOverview();
     else syncSocialRailWidgets();
   }
+
+  return;
 
   try {
     const d = await apiGet('/queuemates?limit=3');

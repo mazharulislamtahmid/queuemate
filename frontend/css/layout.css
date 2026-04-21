@@ -594,6 +594,13 @@
   align-items: flex-start;
   gap: 12px;
 }
+.widget-item-static {
+  cursor: default;
+}
+.widget-item-static:hover {
+  opacity: 1;
+  transform: none;
+}
 .widget-avatar-wrap {
   position: relative;
   width: 42px;

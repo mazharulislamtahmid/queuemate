@@ -70,9 +70,10 @@ function renderTournamentCreateBox() {
         </div></div>
       <div class="form-group"><label class="form-label">Description</label>
         <textarea id="ttDesc" rows="4" placeholder="Rules, format, eligibility..." style="resize:vertical"></textarea></div>
+      <div class="form-group"><label class="form-label">Organizer / Host *</label><input type="text" id="ttOrg" placeholder="Your name or org name"></div>
       <div class="two-col">
-        <div class="form-group"><label class="form-label">Organizer / Host *</label><input type="text" id="ttOrg" placeholder="Your name or org name"></div>
         <div class="form-group"><label class="form-label">Registration Link</label><input type="url" id="ttRegLink" placeholder="https://forms.gle/..."></div>
+        <div class="form-group"><label class="form-label">Explore / Social Link</label><input type="url" id="ttSocialLink" placeholder="https://discord.gg/your-event"></div>
       </div>
       <div class="date-row">
         <div class="form-group"><label class="form-label">Start Date *</label><input type="date" id="ttStart"></div>
@@ -172,6 +173,7 @@ async function submitTournamentCreate() {
   const desc = document.getElementById('ttDesc')?.value.trim();
   const org = document.getElementById('ttOrg')?.value.trim();
   const regLink = document.getElementById('ttRegLink')?.value.trim();
+  const socialLink = document.getElementById('ttSocialLink')?.value.trim();
   const startDate = document.getElementById('ttStart')?.value;
   const endDate = document.getElementById('ttEnd')?.value;
 
@@ -183,6 +185,7 @@ async function submitTournamentCreate() {
   if (!endDate) return showToast('End date required', 'error');
   if (new Date(endDate) <= new Date(startDate)) return showToast('End date must be after start date', 'error');
   if (regLink && !isValidUrl(regLink)) return showToast('Invalid registration link', 'error');
+  if (socialLink && !isValidUrl(socialLink)) return showToast('Invalid social link', 'error');
 
   const btn = document.getElementById('ttSubmitBtn');
   setSubmitting(btn, true);
@@ -195,6 +198,7 @@ async function submitTournamentCreate() {
       description: desc,
       organizerName: org,
       registrationLink: regLink,
+      socialLink,
       startDate,
       endDate,
     }, true);
@@ -257,16 +261,30 @@ function renderTournaments() {
   el.innerHTML = html;
 }
 
+function getTournamentExploreLink(tournament) {
+  if (typeof tournament?.socialLink !== 'string' || !tournament.socialLink.trim()) return '';
+  try {
+    const parsed = new URL(tournament.socialLink);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? tournament.socialLink : '';
+  } catch {
+    return '';
+  }
+}
+
 function renderTournCard(t) {
   const cfg = GAME_CONFIG[t.game] || {};
   const hasResult = t._status === 'over' && t.resultImageUrl;
+  const exploreLink = getTournamentExploreLink(t);
+  const hostLine = t.createdBy
+    ? profileAnchor(t.createdBy, `<div class="tourn-organizer">by ${escHtml(t.organizerName || t.createdBy?.name || 'Unknown')}</div>`, 'profile-entry-link')
+    : `<div class="tourn-organizer">by ${escHtml(t.organizerName || 'Unknown')}</div>`;
   const postedBy = t.createdBy ? `<div class="tourn-organizer">posted by ${profileAnchor(t.createdBy, escHtml(t.createdBy?.name || 'Player'), 'profile-entry-link')}</div>` : '';
   return `<div class="card tourn-card" id="tourn-${escHtml(t._id)}">
     <img src="${posterFallback(t.posterUrl)}" class="tourn-poster" alt="poster" onerror="this.src='assets/default-poster.svg'" loading="lazy">
     <div class="tourn-card-body">
       <div class="tourn-meta">${gameBadgeHTML(t.game)}${tierBadgeHTML(t._tier)}${statusBadgeHTML(t._status)}${cfg.teamSize ? `<span class="badge badge-news">${escHtml(cfg.teamSize)}</span>` : ''}</div>
       <div class="tourn-title">${escHtml(t.title)}</div>
-      <div class="tourn-organizer">by ${escHtml(t.organizerName || 'Unknown')}</div>
+      ${hostLine}
       ${postedBy}
       <div class="tourn-prize">₹${Number(t.prizePool || 0).toLocaleString()}</div>
       <div class="tourn-dates">${formatDate(t.startDate)} -> ${formatDate(t.endDate)}</div>
@@ -275,6 +293,7 @@ function renderTournCard(t) {
       <div class="tourn-card-footer">
         <button class="btn btn-ghost btn-sm" onclick="openTournDetail('${escHtml(t._id)}')">View Details</button>
         ${t._status !== 'over' && t.registrationLink ? `<a href="${escHtml(t.registrationLink)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Register Now</a>` : ''}
+        ${exploreLink ? `<a href="${escHtml(exploreLink)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">Explore</a>` : ''}
       </div>
     </div>
   </div>`;
@@ -286,6 +305,7 @@ function openTournDetail(id) {
   const me = getCurrentUser();
   const isCreator = me && (t.createdBy?._id === me._id || t.createdBy === me._id);
   const cfg = GAME_CONFIG[t.game] || {};
+  const exploreLink = getTournamentExploreLink(t);
   _tournResultImageDraft = t.resultImageUrl || '';
 
   const resultBlock = t._status === 'over' && t.resultImageUrl
@@ -323,7 +343,9 @@ function openTournDetail(id) {
     <img src="${posterFallback(t.posterUrl)}" class="tourn-detail-poster" alt="" onerror="this.src='assets/default-poster.svg'">
     <div class="tourn-meta" style="margin-bottom:8px">${gameBadgeHTML(t.game)}${tierBadgeHTML(t._tier)}${statusBadgeHTML(t._status)}${cfg.teamSize ? `<span class="badge badge-news">${escHtml(cfg.teamSize)}</span>` : ''}</div>
     <h2 style="font-family:var(--font-display);font-size:1.28rem;font-weight:700;margin-bottom:6px">${escHtml(t.title)}</h2>
-    <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:var(--space-md)">by ${escHtml(t.organizerName || '')}</div>
+    <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:var(--space-md)">${t.createdBy
+      ? profileAnchor(t.createdBy, `by ${escHtml(t.organizerName || t.createdBy?.name || 'Unknown')}`, 'profile-entry-link')
+      : `by ${escHtml(t.organizerName || 'Unknown')}`}</div>
     <div class="tourn-info-grid">
       <div class="tourn-info-item"><label>Prize Pool</label><span style="color:var(--tier-s)">₹${Number(t.prizePool || 0).toLocaleString()}</span></div>
       <div class="tourn-info-item"><label>Tier</label><span>${t._tier}</span></div>
@@ -333,9 +355,11 @@ function openTournDetail(id) {
       <div class="tourn-info-item"><label>Team Size</label><span>${escHtml(cfg.teamSize || '-')}</span></div>
     </div>
     ${t.description ? `<p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.65;margin:var(--space-md) 0">${escHtml(t.description)}</p>` : ''}
-    ${t._status !== 'over' && t.registrationLink
-      ? `<a href="${escHtml(t.registrationLink)}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-bottom:var(--space-md)">Register Now</a>`
-      : t._status === 'over' ? `<div class="badge badge-over" style="margin-bottom:var(--space-md);padding:8px 16px;font-size:0.87rem">Tournament is Over</div>` : ''}
+    ${(t._status !== 'over' && t.registrationLink) || exploreLink ? `<div class="tourn-detail-actions">
+      ${t._status !== 'over' && t.registrationLink ? `<a href="${escHtml(t.registrationLink)}" target="_blank" rel="noopener" class="btn btn-primary">Register Now</a>` : ''}
+      ${exploreLink ? `<a href="${escHtml(exploreLink)}" target="_blank" rel="noopener" class="btn btn-ghost">Explore</a>` : ''}
+    </div>` : ''}
+    ${t._status === 'over' ? `<div class="badge badge-over" style="margin-bottom:var(--space-md);padding:8px 16px;font-size:0.87rem">Tournament is Over</div>` : ''}
     ${resultBlock}
     ${creatorEdit}`;
 

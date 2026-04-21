@@ -16,7 +16,7 @@ const getTournaments = async (req, res) => {
     ];
 
     let tournaments = await Tournament.find(filter)
-      .populate('createdBy', 'name avatarUrl coverPhotoUrl')
+      .populate('createdBy', 'name avatarUrl coverPhotoUrl socialLinks')
       .sort({ createdAt: -1 })
       .limit(limit ? parseInt(limit) : 100);
 
@@ -35,7 +35,9 @@ const getTournaments = async (req, res) => {
 
 const createTournament = async (req, res) => {
   try {
-    const { title, game, prizePool, posterUrl, description, organizerName, registrationLink, startDate, endDate } = req.body;
+    const { title, game, prizePool, posterUrl, description, organizerName, registrationLink, socialLink, startDate, endDate } = req.body;
+    const cleanRegistrationLink = registrationLink?.trim() || '';
+    const cleanSocialLink = socialLink?.trim() || '';
 
     if (!title?.trim())                return res.status(400).json({ message: 'Title is required.' });
     if (!validateGame(game))           return res.status(400).json({ message: 'Invalid game.' });
@@ -44,15 +46,16 @@ const createTournament = async (req, res) => {
     if (!startDate || !endDate)        return res.status(400).json({ message: 'Start and end dates are required.' });
     if (!validateDateOrder(startDate, endDate)) return res.status(400).json({ message: 'End date must be after start date.' });
     if (posterUrl && !validateUrl(posterUrl))             return res.status(400).json({ message: 'Invalid poster URL.' });
-    if (registrationLink && !validateUrl(registrationLink)) return res.status(400).json({ message: 'Invalid registration link.' });
+    if (cleanRegistrationLink && !validateUrl(cleanRegistrationLink)) return res.status(400).json({ message: 'Invalid registration link.' });
+    if (cleanSocialLink && !validateUrl(cleanSocialLink)) return res.status(400).json({ message: 'Invalid social link.' });
 
     const tournament = await Tournament.create({
       createdBy: req.user._id, title: title.trim(), game,
       prizePool: Number(prizePool), posterUrl: posterUrl || '',
       description: description || '', organizerName: organizerName.trim(),
-      registrationLink: registrationLink || '', startDate, endDate,
+      registrationLink: cleanRegistrationLink, socialLink: cleanSocialLink, startDate, endDate,
     });
-    await tournament.populate('createdBy', 'name avatarUrl coverPhotoUrl');
+    await tournament.populate('createdBy', 'name avatarUrl coverPhotoUrl socialLinks');
     await logActivity({ actor: req.user._id, actionType: 'create_tournament', targetType: 'tournament', targetId: tournament._id, message: `${req.user.name} created tournament "${tournament.title}".` });
 
     const obj = tournament.toObject();
@@ -63,7 +66,7 @@ const createTournament = async (req, res) => {
 
 const getTournament = async (req, res) => {
   try {
-    const tournament = await Tournament.findById(req.params.id).populate('createdBy', 'name avatarUrl coverPhotoUrl');
+    const tournament = await Tournament.findById(req.params.id).populate('createdBy', 'name avatarUrl coverPhotoUrl socialLinks');
     if (!tournament) return res.status(404).json({ message: 'Tournament not found.' });
     const obj = tournament.toObject();
     obj.status = calcStatus(tournament.startDate, tournament.endDate);
@@ -79,7 +82,7 @@ const updateTournament = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized.' });
     }
 
-    const { resultImageUrl, resultText, title, description, registrationLink, posterUrl } = req.body;
+    const { resultImageUrl, resultText, title, description, registrationLink, socialLink, posterUrl } = req.body;
 
     if (resultImageUrl !== undefined) {
       if (resultImageUrl && !validateUrl(resultImageUrl)) return res.status(400).json({ message: 'Invalid result image URL.' });
@@ -89,8 +92,14 @@ const updateTournament = async (req, res) => {
     if (title?.trim())                  tournament.title = title.trim();
     if (description !== undefined)      tournament.description = description;
     if (registrationLink !== undefined) {
-      if (registrationLink && !validateUrl(registrationLink)) return res.status(400).json({ message: 'Invalid registration link.' });
-      tournament.registrationLink = registrationLink;
+      const cleanRegistrationLink = registrationLink?.trim() || '';
+      if (cleanRegistrationLink && !validateUrl(cleanRegistrationLink)) return res.status(400).json({ message: 'Invalid registration link.' });
+      tournament.registrationLink = cleanRegistrationLink;
+    }
+    if (socialLink !== undefined) {
+      const cleanSocialLink = socialLink?.trim() || '';
+      if (cleanSocialLink && !validateUrl(cleanSocialLink)) return res.status(400).json({ message: 'Invalid social link.' });
+      tournament.socialLink = cleanSocialLink;
     }
     if (posterUrl !== undefined) {
       if (posterUrl && !validateUrl(posterUrl)) return res.status(400).json({ message: 'Invalid poster URL.' });
@@ -98,7 +107,7 @@ const updateTournament = async (req, res) => {
     }
 
     await tournament.save();
-    await tournament.populate('createdBy', 'name avatarUrl coverPhotoUrl');
+    await tournament.populate('createdBy', 'name avatarUrl coverPhotoUrl socialLinks');
     await logActivity({ actor: req.user._id, actionType: 'update_tournament', targetType: 'tournament', targetId: tournament._id, message: `${req.user.name} updated tournament "${tournament.title}".` });
 
     const obj = tournament.toObject();
