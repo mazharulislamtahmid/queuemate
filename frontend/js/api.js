@@ -50,7 +50,12 @@ async function _request(endpoint, options) {
     const res = await fetch(`${BASE_URL}${endpoint}`, options);
     return _handle(res);
   } catch (err) {
-    throw new Error(err?.message || 'Could not reach the server. Check the API URL and make sure the backend is running.');
+    const msg = String(err?.message || '');
+    const isFetchNetworkError = err?.name === 'TypeError' || /failed to fetch|networkerror|load failed/i.test(msg);
+    if (isFetchNetworkError) {
+      throw new Error('Could not reach the server. Check the API URL and make sure the backend is running.');
+    }
+    throw new Error(msg || 'Could not reach the server. Check the API URL and make sure the backend is running.');
   }
 }
 
