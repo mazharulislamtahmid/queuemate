@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://queuemate-api.onrender.com';
 
 const GAME_CONFIG = {
   valorant: { label:'Valorant', color:'#e05260', badgeClass:'badge-valorant', accentClass:'qm-accent-valorant', teamSize:'5v5', image:'assets/game-valorant.jpg', ranks:['Iron','Bronze','Silver','Gold','Platinum','Diamond','Ascendant','Immortal','Radiant'], teammates:['Duo','3 Players','Full Team'] },
