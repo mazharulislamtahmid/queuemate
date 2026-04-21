@@ -194,9 +194,9 @@ function renderQmCard(p) {
         <div><div class="qm-meta-label">Playing Time</div><div class="qm-meta-val">${escHtml(p.playingTime||'-')}</div></div>
         <div><div class="qm-meta-label">Team Size</div><div class="qm-meta-val">${escHtml(cfg.teamSize||'-')}</div></div>
       </div>
-      ${langs ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0">${langs}</div>` : ''}
+      ${langs ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0;min-height:30px">${langs}</div>` : '<div style="min-height:30px"></div>'}
       <div class="qm-note">${escHtml(p.note)}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--space-sm);flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:var(--space-sm);flex-wrap:wrap;gap:8px">
         <span class="expiry-label ${exp.soon?'expiring-soon':''}">Time left: ${exp.text}</span>
         <div style="display:flex;gap:8px">
           ${isOwn

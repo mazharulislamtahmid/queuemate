@@ -82,15 +82,33 @@ const updateTournament = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized.' });
     }
 
-    const { resultImageUrl, resultText, title, description, registrationLink, socialLink, posterUrl } = req.body;
+    const {
+      resultImageUrl, resultText, title, game, prizePool, description, organizerName,
+      registrationLink, socialLink, posterUrl, startDate, endDate,
+    } = req.body;
 
     if (resultImageUrl !== undefined) {
       if (resultImageUrl && !validateUrl(resultImageUrl)) return res.status(400).json({ message: 'Invalid result image URL.' });
       tournament.resultImageUrl = resultImageUrl;
     }
-    if (resultText !== undefined)       tournament.resultText = resultText;
-    if (title?.trim())                  tournament.title = title.trim();
-    if (description !== undefined)      tournament.description = description;
+    if (resultText !== undefined)       tournament.resultText = resultText || '';
+    if (title !== undefined) {
+      if (!title?.trim()) return res.status(400).json({ message: 'Title is required.' });
+      tournament.title = title.trim();
+    }
+    if (game !== undefined) {
+      if (!validateGame(game)) return res.status(400).json({ message: 'Invalid game.' });
+      tournament.game = game;
+    }
+    if (prizePool !== undefined) {
+      if (!validatePrizePool(prizePool)) return res.status(400).json({ message: 'Prize pool must be a non-negative number.' });
+      tournament.prizePool = Number(prizePool);
+    }
+    if (description !== undefined)      tournament.description = description || '';
+    if (organizerName !== undefined) {
+      if (!organizerName?.trim()) return res.status(400).json({ message: 'Organizer name is required.' });
+      tournament.organizerName = organizerName.trim();
+    }
     if (registrationLink !== undefined) {
       const cleanRegistrationLink = registrationLink?.trim() || '';
       if (cleanRegistrationLink && !validateUrl(cleanRegistrationLink)) return res.status(400).json({ message: 'Invalid registration link.' });
@@ -104,6 +122,14 @@ const updateTournament = async (req, res) => {
     if (posterUrl !== undefined) {
       if (posterUrl && !validateUrl(posterUrl)) return res.status(400).json({ message: 'Invalid poster URL.' });
       tournament.posterUrl = posterUrl;
+    }
+    if (startDate !== undefined || endDate !== undefined) {
+      const nextStartDate = startDate !== undefined ? startDate : tournament.startDate;
+      const nextEndDate = endDate !== undefined ? endDate : tournament.endDate;
+      if (!nextStartDate || !nextEndDate) return res.status(400).json({ message: 'Start and end dates are required.' });
+      if (!validateDateOrder(nextStartDate, nextEndDate)) return res.status(400).json({ message: 'End date must be after start date.' });
+      tournament.startDate = nextStartDate;
+      tournament.endDate = nextEndDate;
     }
 
     await tournament.save();

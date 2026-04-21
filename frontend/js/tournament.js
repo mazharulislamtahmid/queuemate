@@ -3,10 +3,26 @@ let _tFilters = { game: '', tier: '', status: '', search: '' };
 let _tournResultImageDraft = '';
 let _tournCreateExpanded = false;
 let _createTournamentPoster = '';
+let _editTournamentPosterDraft = '';
+let _editTournamentReturnToDetail = false;
 const TOURNAMENT_CURRENCY = 'Tk';
 
 function formatTournamentCurrency(amount) {
   return `${TOURNAMENT_CURRENCY} ${Number(amount || 0).toLocaleString()}`;
+}
+
+function canManageTournament(tournament) {
+  const me = getCurrentUser();
+  const creatorId = tournament?.createdBy?._id || tournament?.createdBy;
+  return !!(me && (String(creatorId) === String(me._id) || me.role === 'admin'));
+}
+
+function normalizeDateInputValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().slice(0, 10);
 }
 
 async function initTournaments() {
@@ -170,6 +186,180 @@ function clearTournamentCreatePoster() {
   if (wrap) wrap.style.display = 'none';
 }
 
+function dismissTournamentEditModal(reopenDetail = false, tournamentId = '') {
+  const shouldReopen = reopenDetail && _editTournamentReturnToDetail && tournamentId;
+  closeModal(document.getElementById('tournEditModal'));
+  _editTournamentPosterDraft = '';
+  _editTournamentReturnToDetail = false;
+  if (shouldReopen) openTournDetail(tournamentId);
+}
+
+function onTournamentEditGameChange() {
+  const game = document.getElementById('teGame')?.value;
+  const cfg = GAME_CONFIG[game];
+  const lbl = document.getElementById('teTeamSizeLabel');
+  if (lbl) {
+    lbl.textContent = cfg ? cfg.teamSize : '-';
+    lbl.className = `badge ${cfg ? cfg.badgeClass : 'badge-news'}`;
+  }
+}
+
+function renderTournamentEditTierPreview() {
+  const prize = document.getElementById('tePrize')?.value;
+  const tp = document.getElementById('teTierPreview');
+  if (tp) tp.innerHTML = prize ? `Tier: ${tierBadgeHTML(calcTier(prize))}` : '';
+}
+
+function handleTournamentEditPosterSelect(event) {
+  readTournamentCreateImageFile(event, result => {
+    _editTournamentPosterDraft = result;
+    const wrap = document.getElementById('tePosterPreviewWrap');
+    const img = document.getElementById('tePosterPreview');
+    if (wrap && img) {
+      img.src = result;
+      img.style.display = 'block';
+      wrap.style.display = 'flex';
+    }
+  });
+}
+
+function clearTournamentEditPoster() {
+  _editTournamentPosterDraft = '';
+  const input = document.getElementById('tePoster');
+  const wrap = document.getElementById('tePosterPreviewWrap');
+  const img = document.getElementById('tePosterPreview');
+  if (input) input.value = '';
+  if (img) {
+    img.src = '';
+    img.style.display = 'none';
+  }
+  if (wrap) wrap.style.display = 'none';
+}
+
+function openTournamentEditModal(id, fromDetail = false) {
+  const t = _allTournaments.find(item => item._id === id);
+  if (!t || !canManageTournament(t)) return;
+
+  _editTournamentPosterDraft = t.posterUrl || '';
+  _editTournamentReturnToDetail = !!fromDetail;
+  if (fromDetail) closeModal(document.getElementById('tournDetailModal'));
+
+  const body = `
+    <div class="create-box-header" style="padding:0 0 var(--space-md);margin-bottom:var(--space-md)">
+      <div class="create-box-title-wrap">
+        <div class="create-box-badge">Edit Tournament</div>
+        <h3>Update tournament details</h3>
+        <p>Change the event details, links, poster, and dates.</p>
+      </div>
+      <span id="teTeamSizeLabel" class="badge badge-news">-</span>
+    </div>
+    <div class="form-group"><label class="form-label">Tournament Title *</label>
+      <input type="text" id="teTitle" value="${escHtml(t.title || '')}" placeholder="e.g. BD Valorant Championship Season 3"></div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Game *</label>
+        <select id="teGame" onchange="onTournamentEditGameChange()">
+          <option value="">Select Game</option>
+          <option value="valorant" ${t.game === 'valorant' ? 'selected' : ''}>Valorant</option>
+          <option value="pubgm" ${t.game === 'pubgm' ? 'selected' : ''}>PUBG Mobile</option>
+          <option value="ff" ${t.game === 'ff' ? 'selected' : ''}>Free Fire</option>
+          <option value="mlbb" ${t.game === 'mlbb' ? 'selected' : ''}>Mobile Legends</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Prize Pool (${TOURNAMENT_CURRENCY}) *</label>
+        <input type="number" id="tePrize" value="${Number(t.prizePool || 0)}" placeholder="e.g. 10000" min="0" oninput="renderTournamentEditTierPreview()">
+        <div class="tier-preview" id="teTierPreview"></div></div>
+    </div>
+    <div class="form-group"><label class="form-label">Poster <span class="text-muted">(optional)</span></label>
+      <div class="device-upload-box">
+        <input type="file" id="tePoster" accept="image/*" hidden onchange="handleTournamentEditPosterSelect(event)">
+        <div class="device-upload-header">
+          <div>
+            <div class="device-upload-title">Choose from your device</div>
+            <div class="device-upload-subtitle">Replace the current tournament poster if needed.</div>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tePoster')?.click()">Browse</button>
+        </div>
+        <div id="tePosterPreviewWrap" class="device-upload-preview" style="display:${t.posterUrl ? 'flex' : 'none'}">
+          <img id="tePosterPreview" class="poster-preview" src="${escHtml(t.posterUrl || '')}" alt="Tournament poster preview" onerror="this.style.display='none'">
+          <button type="button" class="btn btn-danger btn-sm" onclick="clearTournamentEditPoster()">Remove</button>
+        </div>
+      </div></div>
+    <div class="form-group"><label class="form-label">Description</label>
+      <textarea id="teDesc" rows="4" placeholder="Rules, format, eligibility..." style="resize:vertical">${escHtml(t.description || '')}</textarea></div>
+    <div class="form-group"><label class="form-label">Organizer / Host *</label><input type="text" id="teOrg" value="${escHtml(t.organizerName || '')}" placeholder="Your name or org name"></div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Registration Link</label><input type="url" id="teRegLink" value="${escHtml(t.registrationLink || '')}" placeholder="https://forms.gle/..."></div>
+      <div class="form-group"><label class="form-label">Explore / Social Link</label><input type="url" id="teSocialLink" value="${escHtml(t.socialLink || '')}" placeholder="https://discord.gg/your-event"></div>
+    </div>
+    <div class="date-row">
+      <div class="form-group"><label class="form-label">Start Date *</label><input type="date" id="teStart" value="${normalizeDateInputValue(t.startDate)}"></div>
+      <div class="form-group"><label class="form-label">End Date *</label><input type="date" id="teEnd" value="${normalizeDateInputValue(t.endDate)}"></div>
+    </div>
+  `;
+  const footer = `
+    <button class="btn btn-ghost" onclick="dismissTournamentEditModal(true, '${escHtml(t._id)}')">Cancel</button>
+    <button class="btn btn-primary" id="teSaveBtn" onclick="saveTournamentEdits('${escHtml(t._id)}')">Save Changes</button>
+  `;
+  openModal(createModal('tournEditModal', 'Edit Tournament', body, footer));
+  onTournamentEditGameChange();
+  renderTournamentEditTierPreview();
+}
+
+async function saveTournamentEdits(id) {
+  if (!requireAuth()) return;
+  const title = document.getElementById('teTitle')?.value.trim();
+  const game = document.getElementById('teGame')?.value;
+  const prize = document.getElementById('tePrize')?.value;
+  const desc = document.getElementById('teDesc')?.value.trim();
+  const org = document.getElementById('teOrg')?.value.trim();
+  const regLink = document.getElementById('teRegLink')?.value.trim();
+  const socialLink = document.getElementById('teSocialLink')?.value.trim();
+  const startDate = document.getElementById('teStart')?.value;
+  const endDate = document.getElementById('teEnd')?.value;
+
+  if (!title) return showToast('Title required', 'error');
+  if (!game) return showToast('Select a game', 'error');
+  if (!prize) return showToast('Prize pool required', 'error');
+  if (!org) return showToast('Organizer name required', 'error');
+  if (!startDate) return showToast('Start date required', 'error');
+  if (!endDate) return showToast('End date required', 'error');
+  if (new Date(endDate) <= new Date(startDate)) return showToast('End date must be after start date', 'error');
+  if (regLink && !isValidUrl(regLink)) return showToast('Invalid registration link', 'error');
+  if (socialLink && !isValidUrl(socialLink)) return showToast('Invalid social link', 'error');
+
+  const btn = document.getElementById('teSaveBtn');
+  setSubmitting(btn, true);
+  try {
+    const d = await apiPut(`/tournaments/${id}`, {
+      title,
+      game,
+      prizePool: Number(prize),
+      posterUrl: _editTournamentPosterDraft || '',
+      description: desc,
+      organizerName: org,
+      registrationLink: regLink,
+      socialLink,
+      startDate,
+      endDate,
+    }, true);
+    const updated = d.tournament ? {
+      ...d.tournament,
+      _status: calcStatus(d.tournament.startDate, d.tournament.endDate),
+      _tier: calcTier(d.tournament.prizePool),
+    } : null;
+    const idx = _allTournaments.findIndex(t => t._id === id);
+    if (idx !== -1 && updated) _allTournaments[idx] = updated;
+    const reopenDetail = _editTournamentReturnToDetail;
+    dismissTournamentEditModal(false);
+    renderTournaments();
+    if (reopenDetail) openTournDetail(id);
+    showToast('Tournament updated!', 'success');
+  } catch (e) {
+    showToast(e.message || 'Failed to update tournament', 'error');
+  } finally {
+    setSubmitting(btn, false);
+  }
+}
+
 async function submitTournamentCreate() {
   if (!requireAuth()) return;
   const title = document.getElementById('ttTitle')?.value.trim();
@@ -280,6 +470,7 @@ function renderTournCard(t) {
   const cfg = GAME_CONFIG[t.game] || {};
   const hasResult = t._status === 'over' && t.resultImageUrl;
   const exploreLink = getTournamentExploreLink(t);
+  const canManage = canManageTournament(t);
   const hostLine = t.createdBy
     ? profileAnchor(t.createdBy, `<div class="tourn-organizer">by ${escHtml(t.organizerName || t.createdBy?.name || 'Unknown')}</div>`, 'profile-entry-link')
     : `<div class="tourn-organizer">by ${escHtml(t.organizerName || 'Unknown')}</div>`;
@@ -297,6 +488,7 @@ function renderTournCard(t) {
       ${hasResult ? `<div class="result-indicator" style="margin-top:8px">Result posted</div>` : ''}
       <div class="tourn-card-footer">
         <button class="btn btn-ghost btn-sm" onclick="openTournDetail('${escHtml(t._id)}')">View Details</button>
+        ${canManage ? `<button class="btn btn-ghost btn-sm" onclick="openTournamentEditModal('${escHtml(t._id)}')">Edit</button>` : ''}
         ${t._status !== 'over' && t.registrationLink ? `<a href="${escHtml(t.registrationLink)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Register Now</a>` : ''}
         ${exploreLink ? `<a href="${escHtml(exploreLink)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">Explore</a>` : ''}
       </div>
@@ -307,8 +499,7 @@ function renderTournCard(t) {
 function openTournDetail(id) {
   const t = _allTournaments.find(x => x._id === id);
   if (!t) return;
-  const me = getCurrentUser();
-  const isCreator = me && (t.createdBy?._id === me._id || t.createdBy === me._id);
+  const canManage = canManageTournament(t);
   const cfg = GAME_CONFIG[t.game] || {};
   const exploreLink = getTournamentExploreLink(t);
   _tournResultImageDraft = t.resultImageUrl || '';
@@ -317,7 +508,7 @@ function openTournDetail(id) {
     ? `<div class="result-image-block"><div class="result-label">Tournament Result</div><img src="${escHtml(t.resultImageUrl)}" alt="Result" onerror="this.style.display='none'">${t.resultText ? `<div style="padding:10px var(--space-md);font-size:0.86rem;color:var(--text-secondary)">${escHtml(t.resultText)}</div>` : ''}</div>`
     : t._status === 'over' ? `<div class="empty-state" style="padding:var(--space-md)"><p>No result image added yet.</p></div>` : '';
 
-  const creatorEdit = isCreator && t._status === 'over' ? `
+  const creatorEdit = canManage && t._status === 'over' ? `
     <div class="creator-edit-panel">
       <h4>Add / Update Result</h4>
       <div class="form-group">
@@ -344,6 +535,17 @@ function openTournDetail(id) {
       <button class="btn btn-accent btn-sm" onclick="saveTournResult('${escHtml(t._id)}')">Save Result</button>
     </div>` : '';
 
+  const detailActions = [];
+  if (t._status !== 'over' && t.registrationLink) {
+    detailActions.push(`<a href="${escHtml(t.registrationLink)}" target="_blank" rel="noopener" class="btn btn-primary">Register Now</a>`);
+  }
+  if (exploreLink) {
+    detailActions.push(`<a href="${escHtml(exploreLink)}" target="_blank" rel="noopener" class="btn btn-ghost">Explore</a>`);
+  }
+  if (canManage) {
+    detailActions.push(`<button type="button" class="btn btn-ghost" onclick="openTournamentEditModal('${escHtml(t._id)}', true)">Edit Tournament</button>`);
+  }
+
   const body = `
     <img src="${posterFallback(t.posterUrl)}" class="tourn-detail-poster" alt="" onerror="this.src='assets/default-poster.svg'">
     <div class="tourn-meta" style="margin-bottom:8px">${gameBadgeHTML(t.game)}${tierBadgeHTML(t._tier)}${statusBadgeHTML(t._status)}${cfg.teamSize ? `<span class="badge badge-news">${escHtml(cfg.teamSize)}</span>` : ''}</div>
@@ -360,10 +562,7 @@ function openTournDetail(id) {
       <div class="tourn-info-item"><label>Team Size</label><span>${escHtml(cfg.teamSize || '-')}</span></div>
     </div>
     ${t.description ? `<p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.65;margin:var(--space-md) 0">${escHtml(t.description)}</p>` : ''}
-    ${(t._status !== 'over' && t.registrationLink) || exploreLink ? `<div class="tourn-detail-actions">
-      ${t._status !== 'over' && t.registrationLink ? `<a href="${escHtml(t.registrationLink)}" target="_blank" rel="noopener" class="btn btn-primary">Register Now</a>` : ''}
-      ${exploreLink ? `<a href="${escHtml(exploreLink)}" target="_blank" rel="noopener" class="btn btn-ghost">Explore</a>` : ''}
-    </div>` : ''}
+    ${detailActions.length ? `<div class="tourn-detail-actions">${detailActions.join('')}</div>` : ''}
     ${t._status === 'over' ? `<div class="badge badge-over" style="margin-bottom:var(--space-md);padding:8px 16px;font-size:0.87rem">Tournament is Over</div>` : ''}
     ${resultBlock}
     ${creatorEdit}`;

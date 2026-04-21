@@ -61,18 +61,19 @@ async function loadFeaturedTournament() {
 }
 
 function pickFeaturedTournaments(tournaments) {
-  const upcoming = (tournaments || []).filter(t => t._status === 'upcoming');
-  const ongoing = (tournaments || []).filter(t => t._status === 'ongoing');
+  const active = (tournaments || []).filter(t => t._status === 'upcoming' || t._status === 'ongoing');
 
   const tierRank = { S: 4, A: 3, B: 2, C: 1 };
+  const statusRank = { upcoming: 0, ongoing: 1 };
   const sortByPriority = (a, b) => {
+    const statusDiff = (statusRank[a._status] ?? 99) - (statusRank[b._status] ?? 99);
+    if (statusDiff !== 0) return statusDiff;
     const tierDiff = (tierRank[b._tier] || 0) - (tierRank[a._tier] || 0);
     if (tierDiff !== 0) return tierDiff;
     return new Date(a.startDate) - new Date(b.startDate);
   };
 
-  if (upcoming.length) return upcoming.sort(sortByPriority);
-  if (ongoing.length) return ongoing.sort(sortByPriority);
+  if (active.length) return active.sort(sortByPriority);
   return [];
 }
 

@@ -455,10 +455,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
 }
-.qm-card { margin-bottom: var(--space-md); position: relative; }
+.qm-card {
+  margin-bottom: 0;
+  position: relative;
+  height: 100%;
+  min-height: 420px;
+}
 .qm-card-featured {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.24);
@@ -503,6 +510,9 @@
   position: relative;
   z-index: 1;
   padding: 14px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 .qm-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
 .qm-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: var(--space-sm) 0; }
@@ -517,34 +527,38 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-md);
   border-left: 3px solid var(--border-default);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .expiry-label { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
 .expiry-label.expiring-soon { color: var(--status-ongoing); }
 
 /* Tournament Card */
 .tourn-card { margin-bottom: var(--space-md); }
-.tourn-poster { width: 100%; height: 156px; object-fit: cover; background: var(--bg-surface); display: block; }
-.tourn-card-body { padding: var(--space-md); }
+.tourn-poster { width: 100%; height: 228px; object-fit: cover; background: var(--bg-surface); display: block; }
+.tourn-card-body { padding: 12px 14px 14px; }
 .tourn-title { font-family: var(--font-display); font-size: 1.03rem; font-weight: 800; margin-bottom: 6px; line-height: 1.28; }
-.tourn-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center; }
-.tourn-prize { font-family: var(--font-display); font-size: 1.08rem; font-weight: 800; color: var(--tier-s); margin-top: 4px; }
-.tourn-dates { font-size: 0.77rem; color: var(--text-muted); margin-top: 6px; }
-.tourn-organizer { font-size: 0.79rem; color: var(--text-secondary); margin-top: 3px; }
+.tourn-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; align-items: center; }
+.tourn-prize { font-family: var(--font-display); font-size: 1.02rem; font-weight: 800; color: var(--tier-s); margin-top: 2px; }
+.tourn-dates { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.tourn-organizer { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
 .tourn-desc {
-  font-size: 0.84rem;
+  font-size: 0.81rem;
   color: var(--text-secondary);
-  margin-top: 8px;
-  line-height: 1.58;
+  margin-top: 6px;
+  line-height: 1.46;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .tourn-card-footer {
   display: flex;
   gap: 8px;
-  margin-top: var(--space-md);
-  padding-top: 10px;
+  margin-top: 12px;
+  padding-top: 8px;
   border-top: 1px solid var(--border-subtle);
   flex-wrap: wrap;
 }
