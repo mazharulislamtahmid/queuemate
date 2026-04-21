@@ -3,6 +3,11 @@ let _tFilters = { game: '', tier: '', status: '', search: '' };
 let _tournResultImageDraft = '';
 let _tournCreateExpanded = false;
 let _createTournamentPoster = '';
+const TOURNAMENT_CURRENCY = 'Tk';
+
+function formatTournamentCurrency(amount) {
+  return `${TOURNAMENT_CURRENCY} ${Number(amount || 0).toLocaleString()}`;
+}
 
 async function initTournaments() {
   initNavbar(); initSidebar(); initSidebarRight();
@@ -49,7 +54,7 @@ function renderTournamentCreateBox() {
           <select id="ttGame" onchange="onTournamentCreateGameChange()"><option value="">Select Game</option>
             <option value="valorant">Valorant</option><option value="pubgm">PUBG Mobile</option><option value="ff">Free Fire</option><option value="mlbb">Mobile Legends</option>
           </select></div>
-        <div class="form-group"><label class="form-label">Prize Pool (â‚¹) *</label>
+        <div class="form-group"><label class="form-label">Prize Pool (${TOURNAMENT_CURRENCY}) *</label>
           <input type="number" id="ttPrize" placeholder="e.g. 10000" min="0" oninput="renderTournamentCreateTierPreview()">
           <div class="tier-preview" id="ttTierPreview"></div></div>
       </div>
@@ -286,7 +291,7 @@ function renderTournCard(t) {
       <div class="tourn-title">${escHtml(t.title)}</div>
       ${hostLine}
       ${postedBy}
-      <div class="tourn-prize">₹${Number(t.prizePool || 0).toLocaleString()}</div>
+      <div class="tourn-prize">${formatTournamentCurrency(t.prizePool)}</div>
       <div class="tourn-dates">${formatDate(t.startDate)} -> ${formatDate(t.endDate)}</div>
       <p class="tourn-desc">${escHtml(t.description || '')}</p>
       ${hasResult ? `<div class="result-indicator" style="margin-top:8px">Result posted</div>` : ''}
@@ -347,7 +352,7 @@ function openTournDetail(id) {
       ? profileAnchor(t.createdBy, `by ${escHtml(t.organizerName || t.createdBy?.name || 'Unknown')}`, 'profile-entry-link')
       : `by ${escHtml(t.organizerName || 'Unknown')}`}</div>
     <div class="tourn-info-grid">
-      <div class="tourn-info-item"><label>Prize Pool</label><span style="color:var(--tier-s)">₹${Number(t.prizePool || 0).toLocaleString()}</span></div>
+      <div class="tourn-info-item"><label>Prize Pool</label><span style="color:var(--tier-s)">${formatTournamentCurrency(t.prizePool)}</span></div>
       <div class="tourn-info-item"><label>Tier</label><span>${t._tier}</span></div>
       <div class="tourn-info-item"><label>Start Date</label><span>${formatDate(t.startDate)}</span></div>
       <div class="tourn-info-item"><label>End Date</label><span>${formatDate(t.endDate)}</span></div>
