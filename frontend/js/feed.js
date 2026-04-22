@@ -76,12 +76,20 @@ async function initFeed() {
     renderPosts();
   });
 
-  document.getElementById('feedSearch')?.addEventListener('input', e => {
+  bindFeedSearchInput();
+
+  document.addEventListener('click', handleFeedDocumentClick);
+}
+
+function bindFeedSearchInput() {
+  const input = document.getElementById('navbarFeedSearch');
+  if (!input || input.dataset.bound === 'true') return;
+  input.value = _feedSearch;
+  input.addEventListener('input', e => {
     _feedSearch = e.target.value.trim();
     renderPosts();
   });
-
-  document.addEventListener('click', handleFeedDocumentClick);
+  input.dataset.bound = 'true';
 }
 
 async function loadFeaturedTournament() {

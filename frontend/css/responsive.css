@@ -77,7 +77,36 @@
     display: none;
   }
   .navbar-nav {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 6px;
+    min-width: 0;
+  }
+  .navbar-nav a {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .navbar-nav .nav-link-label {
     display: none;
+  }
+  .navbar-nav .nav-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 11px;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .navbar-search-panel {
+    top: calc(100% + 8px);
+    width: calc(100vw - 16px);
+  }
+  .navbar-nav a.active .nav-icon-badge {
+    background: rgba(118, 240, 210, 0.16);
+    border-color: rgba(118, 240, 210, 0.24);
   }
   .navbar-actions {
     display: none;
@@ -88,6 +117,7 @@
   .navbar-hamburger {
     display: flex;
     margin-left: 0;
+    flex-shrink: 0;
   }
   .mobile-menu {
     top: 68px;
@@ -288,22 +318,22 @@
   .home-page .post-card-header {
     align-items: center;
     flex-wrap: nowrap;
-    gap: 8px;
+    gap: 6px;
   }
   .home-page .post-card-header-main {
     flex: 1;
     min-width: 0;
-    gap: 8px;
+    gap: 6px;
   }
   .home-page .post-card-header-main > div {
     min-width: 0;
   }
   .home-page .post-card-header .post-avatar {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
   }
   .home-page .post-card-header .post-user-name {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -314,31 +344,59 @@
   .home-page .post-card-header-side {
     width: auto;
     flex-shrink: 0;
-    gap: 6px;
+    gap: 5px;
     justify-content: flex-end;
   }
   .home-page .post-card-header-side .badge {
-    padding: 4px 7px;
-    font-size: 0.6rem;
+    padding: 3px 6px;
+    font-size: 0.56rem;
   }
   .home-page .post-inline-actions {
     flex-wrap: nowrap;
-    gap: 5px;
+    gap: 4px;
   }
   .home-page .post-inline-action {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
   .home-page .post-inline-count {
-    min-width: 14px;
-    height: 14px;
-    font-size: 0.56rem;
+    min-width: 13px;
+    height: 13px;
+    font-size: 0.52rem;
     right: -4px;
     top: -3px;
+  }
+  .home-page .post-floating-profile {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    gap: 7px;
+  }
+  .home-page .post-caption-bar {
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+  }
+  .home-page .post-caption-bar .post-content {
+    font-size: 0.76rem;
+    line-height: 1.38;
+  }
+  .home-page .post-caption-bar .post-see-more {
+    margin-top: 4px;
+    font-size: 0.72rem;
   }
   .qm-card-header,
   .mailbox-item {
     gap: 8px;
+  }
+  .qm-card {
+    min-height: 336px;
+  }
+  .qm-card-body {
+    padding: 10px;
+  }
+  .qm-card-bottom {
+    padding: 10px;
+    gap: 6px;
   }
   .qm-card-header {
     flex-wrap: wrap;
@@ -435,6 +493,9 @@
   .tourn-info-grid { grid-template-columns: 1fr; }
   .qm-grid { grid-template-columns: 1fr; }
   .qm-meta-grid { grid-template-columns: 1fr; }
+  .qm-card {
+    min-height: 324px;
+  }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .tourn-grid { grid-template-columns: 1fr; }
   .featured-hero-content {

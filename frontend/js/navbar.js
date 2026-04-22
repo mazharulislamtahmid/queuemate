@@ -3,13 +3,50 @@ let _mailboxActiveFriendshipId = '';
 let _mailboxMessages = [];
 let _mailboxPoller = null;
 let _mailboxLoadingFriendshipId = '';
+let _navbarGlobalHandlersBound = false;
 
 function navItemHTML(href, label, icon, activeClass = '', extraClass = '') {
-  return `<a href="${href}" class="${[activeClass, extraClass].filter(Boolean).join(' ')}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span>${label}</span></a>`;
+  return `<a href="${href}" class="${[activeClass, extraClass].filter(Boolean).join(' ')}" aria-label="${escHtml(label)}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span class="nav-link-label">${label}</span></a>`;
 }
 
 function actionNavItemHTML(label, icon, onclick) {
-  return `<a href="#" onclick="${onclick}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span>${label}</span></a>`;
+  return `<a href="#" onclick="${onclick}" aria-label="${escHtml(label)}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span class="nav-link-label">${label}</span></a>`;
+}
+
+function closeNavbarFeedSearch() {
+  const panel = document.getElementById('navbarFeedSearchPanel');
+  const trigger = document.getElementById('navbarFeedSearchTrigger');
+  if (panel) panel.classList.remove('open');
+  if (trigger) trigger.classList.remove('active');
+}
+
+function toggleNavbarFeedSearch(event) {
+  event?.stopPropagation?.();
+
+  const panel = document.getElementById('navbarFeedSearchPanel');
+  const trigger = document.getElementById('navbarFeedSearchTrigger');
+  if (!panel || !trigger) return;
+
+  const willOpen = !panel.classList.contains('open');
+  closeNavbarFeedSearch();
+
+  if (!willOpen) return;
+
+  panel.classList.add('open');
+  trigger.classList.add('active');
+  requestAnimationFrame(() => document.getElementById('navbarFeedSearch')?.focus());
+}
+
+function handleNavbarGlobalClick(event) {
+  const panel = document.getElementById('navbarFeedSearchPanel');
+  const trigger = document.getElementById('navbarFeedSearchTrigger');
+  if (!panel?.classList.contains('open')) return;
+  if (panel.contains(event.target) || trigger?.contains(event.target)) return;
+  closeNavbarFeedSearch();
+}
+
+function handleNavbarGlobalKeydown(event) {
+  if (event.key === 'Escape') closeNavbarFeedSearch();
 }
 
 function initNavbar() {
@@ -20,6 +57,7 @@ function initNavbar() {
   const loggedIn = isLoggedIn();
   const admin = isAdmin();
   const page = window.location.pathname.split('/').pop() || 'index.html';
+  const isHomePage = page === 'index.html';
   const active = href => href === page ? 'active' : '';
 
   const mailboxHTML = loggedIn
@@ -40,6 +78,19 @@ function initNavbar() {
     : `<a href="login.html" class="btn btn-ghost btn-sm">Login</a>
        <a href="register.html" class="btn btn-primary btn-sm">Register</a>`;
 
+  const homeSearchHTML = isHomePage
+    ? `<a href="#" id="navbarFeedSearchTrigger" class="nav-icon-only navbar-search-link" aria-label="Search feed" onclick="toggleNavbarFeedSearch(event);return false;"><span class="nav-icon-badge" aria-hidden="true">&#128269;</span><span class="nav-link-label">Search</span></a>`
+    : '';
+
+  const homeSearchPanelHTML = isHomePage
+    ? `<div class="navbar-search-panel" id="navbarFeedSearchPanel">
+         <div class="navbar-search-input-wrap">
+           <span class="navbar-search-icon" aria-hidden="true">&#128269;</span>
+           <input type="text" id="navbarFeedSearch" placeholder="Search posts, players, or updates" autocomplete="off">
+         </div>
+       </div>`
+    : '';
+
   el.innerHTML = `
     <a href="index.html" class="navbar-logo">
       <div class="logo-icon">Q</div>
@@ -49,9 +100,11 @@ function initNavbar() {
       ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
       ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
       ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
+      ${homeSearchHTML}
     </nav>
     <div class="navbar-actions">${authHTML}</div>
     <div class="navbar-hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+    ${homeSearchPanelHTML}
   `;
 
   let menu = document.getElementById('mobileMenu');
@@ -72,6 +125,12 @@ function initNavbar() {
     `;
     const ref = el.nextSibling;
     document.body.insertBefore(menu, ref);
+  }
+
+  if (!_navbarGlobalHandlersBound) {
+    document.addEventListener('click', handleNavbarGlobalClick);
+    document.addEventListener('keydown', handleNavbarGlobalKeydown);
+    _navbarGlobalHandlersBound = true;
   }
 
   if (loggedIn) loadMailboxOverview();
