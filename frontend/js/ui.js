@@ -17,6 +17,18 @@ function setEmpty(el,icon,title,sub){el.innerHTML=emptyStateHTML(icon,title,sub)
 function setError(el,msg){el.innerHTML=errorStateHTML(msg);}
 function openModal(el){el.classList.add('open');document.body.style.overflow='hidden';}
 function closeModal(el){if(el){el.classList.remove('open');document.body.style.overflow='';}}
+function openImageViewer(src, alt='Photo') {
+  if (!src) return;
+  const ex = document.getElementById('imageViewerModal');
+  if (ex) ex.remove();
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay image-viewer-overlay';
+  ov.id = 'imageViewerModal';
+  ov.innerHTML = `<div class="image-viewer-shell"><button class="image-viewer-close" type="button" aria-label="Close photo" onclick="closeModal(document.getElementById('imageViewerModal'))">×</button><img src="${escHtml(src)}" class="image-viewer-img" alt="${escHtml(alt)}" onerror="closeModal(document.getElementById('imageViewerModal'))"></div>`;
+  ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov); });
+  document.body.appendChild(ov);
+  openModal(ov);
+}
 function createModal(id,title,body,footer=''){
   const ex=document.getElementById(id);if(ex)ex.remove();
   const ov=document.createElement('div');

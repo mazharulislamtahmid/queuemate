@@ -434,7 +434,7 @@ function renderPostCard(p) {
       ${renderPostMenu(p)}
       ${hasImage ? `
         <div class="post-hero-media ${imageAspectClass}">
-          <img src="${escHtml(p.imageUrl)}" class="post-image" alt="" onerror="this.style.display='none'">
+          <img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${p.user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">
           <div class="post-image-overlay"></div>
           <div class="post-floating-profile">
             <div class="post-card-header">
@@ -455,6 +455,9 @@ function renderPostCard(p) {
                 </div>
                 ${categoryBadgeHTML(p.category)}
               </div>
+            </div>
+            <div class="post-caption-bar">
+              ${renderPostContentBlock(p._id, p.content)}
             </div>
           </div>
         </div>
@@ -478,10 +481,10 @@ function renderPostCard(p) {
             ${categoryBadgeHTML(p.category)}
           </div>
         </div>
+        <div class="post-copy-wrap">
+          ${renderPostContentBlock(p._id, p.content)}
+        </div>
       `}
-      <div class="post-copy-wrap">
-        ${renderPostContentBlock(p._id, p.content)}
-      </div>
       <div class="comment-section" id="comments-${escHtml(p._id)}" style="display:none">
         <div id="commentList-${escHtml(p._id)}">${(p.comments || []).map(renderComment).join('')}</div>
         ${isLoggedIn() ? `<div class="comment-input-row">

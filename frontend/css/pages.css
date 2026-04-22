@@ -128,14 +128,14 @@
   background-size: cover;
   background-position: center;
   transform: scale(1.02);
-  filter: saturate(1.12) brightness(1.08);
+  filter: saturate(1.18) brightness(1.14);
 }
 .featured-hero-overlay {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(9, 13, 18, 0.58) 0%, rgba(9, 13, 18, 0.38) 34%, rgba(9, 13, 18, 0.16) 62%, rgba(9, 13, 18, 0.06) 100%),
-    linear-gradient(180deg, rgba(118, 240, 210, 0.03) 0%, rgba(124, 168, 255, 0.02) 100%);
+    linear-gradient(90deg, rgba(9, 13, 18, 0.42) 0%, rgba(9, 13, 18, 0.2) 36%, rgba(9, 13, 18, 0.08) 66%, rgba(9, 13, 18, 0.04) 100%),
+    linear-gradient(180deg, rgba(118, 240, 210, 0.025) 0%, rgba(124, 168, 255, 0.015) 100%);
 }
 .featured-hero-noise {
   position: absolute;
@@ -268,7 +268,12 @@
 }
 .home-page .post-image-overlay {
   background:
-    linear-gradient(180deg, rgba(7, 10, 14, 0.02) 0%, rgba(7, 10, 14, 0.12) 48%, rgba(7, 10, 14, 0.62) 100%);
+    linear-gradient(180deg, rgba(7, 10, 14, 0.02) 0%, rgba(7, 10, 14, 0.08) 42%, rgba(7, 10, 14, 0.52) 100%);
+}
+.home-page .post-caption-bar {
+  background: linear-gradient(135deg, rgba(20, 28, 36, 0.32), rgba(12, 18, 26, 0.24));
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
 }
 .home-page .sidebar-nav-links a {
   color: var(--text-secondary);
@@ -338,19 +343,27 @@
   border-radius: calc(var(--radius-md) + 2px);
 }
 .feed-create-collapsed {
-  padding: 12px 16px;
-  gap: 12px;
+  padding: 9px 14px;
+  gap: 10px;
+  min-height: 54px;
 }
 .feed-create-collapsed .post-avatar {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
 }
 .feed-create-collapsed .create-box-collapsed-title {
-  font-size: 0.92rem;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .feed-create-collapsed .create-box-collapsed-subtitle {
-  font-size: 0.77rem;
-  margin-top: 2px;
+  display: none;
+}
+.feed-create-collapsed .btn,
+.feed-create-collapsed a.btn {
+  padding: 6px 11px;
+  font-size: 0.74rem;
 }
 .feed-create-expander {
   padding-top: 2px;

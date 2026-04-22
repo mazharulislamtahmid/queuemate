@@ -39,8 +39,9 @@
     max-width: none;
   }
   .featured-hero-minimal {
-    align-items: start;
+    align-items: flex-start;
     flex-direction: column;
+    justify-content: flex-end;
   }
   .section-header {
     flex-direction: column;
@@ -113,14 +114,27 @@
     display: none;
   }
   .featured-hero {
-    min-height: 0;
+    min-height: 360px;
   }
   .featured-hero-content {
-    min-height: 0;
+    min-height: 360px;
     padding: var(--space-lg);
+    align-items: flex-end;
+    justify-content: flex-end;
   }
   .featured-hero h1 {
     font-size: 1.9rem;
+  }
+  .featured-hero-minimal {
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+  .featured-hero-actions {
+    width: 100%;
+  }
+  .featured-hero-actions .btn {
+    width: auto;
   }
   .section-header,
   .create-box-header,
@@ -251,6 +265,77 @@
   .post-inline-actions {
     flex-wrap: wrap;
   }
+  .home-page .feed-create-collapsed {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    padding: 7px 10px;
+    gap: 8px;
+    min-height: 46px;
+  }
+  .home-page .feed-create-collapsed .btn,
+  .home-page .feed-create-collapsed a.btn {
+    grid-column: auto;
+    width: auto;
+    padding: 5px 10px;
+  }
+  .home-page .feed-create-collapsed .post-avatar {
+    width: 30px;
+    height: 30px;
+  }
+  .home-page .feed-create-collapsed .create-box-collapsed-title {
+    font-size: 0.79rem;
+  }
+  .home-page .post-card-header {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .home-page .post-card-header-main {
+    flex: 1;
+    min-width: 0;
+    gap: 8px;
+  }
+  .home-page .post-card-header-main > div {
+    min-width: 0;
+  }
+  .home-page .post-card-header .post-avatar {
+    width: 34px;
+    height: 34px;
+  }
+  .home-page .post-card-header .post-user-name {
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .home-page .post-card-header .post-time {
+    display: none;
+  }
+  .home-page .post-card-header-side {
+    width: auto;
+    flex-shrink: 0;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .home-page .post-card-header-side .badge {
+    padding: 4px 7px;
+    font-size: 0.6rem;
+  }
+  .home-page .post-inline-actions {
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+  .home-page .post-inline-action {
+    width: 30px;
+    height: 30px;
+  }
+  .home-page .post-inline-count {
+    min-width: 14px;
+    height: 14px;
+    font-size: 0.56rem;
+    right: -4px;
+    top: -3px;
+  }
   .qm-card-header,
   .mailbox-item {
     gap: 8px;
@@ -332,6 +417,14 @@
   .post-card-header-side {
     flex-direction: column;
     align-items: stretch;
+  }
+  .home-page .post-card-header-side {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+  .home-page .post-card-header .post-user-name {
+    max-width: 96px;
   }
   .post-card-text .post-card-header {
     padding: 16px 48px 0 16px;

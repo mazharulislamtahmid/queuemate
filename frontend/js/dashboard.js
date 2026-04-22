@@ -501,7 +501,7 @@ function renderDashboardPostCard(p) {
       <div class="post-copy-wrap">
         ${renderDashboardPostContentBlock(p._id, p.content)}
       </div>
-      ${p.imageUrl ? `<img src="${escHtml(p.imageUrl)}" class="post-image" alt="" onerror="this.style.display='none'">` : ''}
+      ${p.imageUrl ? `<img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">` : ''}
       <div class="dashboard-post-meta">
         <span>${p.likes?.length || p.likesCount || 0} likes</span>
         <span>${p.comments?.length || 0} comments</span>

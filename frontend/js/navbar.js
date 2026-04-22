@@ -4,6 +4,14 @@ let _mailboxMessages = [];
 let _mailboxPoller = null;
 let _mailboxLoadingFriendshipId = '';
 
+function navItemHTML(href, label, icon, activeClass = '', extraClass = '') {
+  return `<a href="${href}" class="${[activeClass, extraClass].filter(Boolean).join(' ')}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span>${label}</span></a>`;
+}
+
+function actionNavItemHTML(label, icon, onclick) {
+  return `<a href="#" onclick="${onclick}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span>${label}</span></a>`;
+}
+
 function initNavbar() {
   const el = document.getElementById('navbar');
   if (!el) return;
@@ -38,9 +46,9 @@ function initNavbar() {
       <span class="logo-text">Queue<span>Mate</span></span>
     </a>
     <nav class="navbar-nav">
-      <a href="index.html" class="${active('index.html')}">Home</a>
-      <a href="find-queuemate.html" class="${active('find-queuemate.html')}">Find QueueMate</a>
-      <a href="tournaments.html" class="${active('tournaments.html')}">Tournaments</a>
+      ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
+      ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
+      ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
     </nav>
     <div class="navbar-actions">${authHTML}</div>
     <div class="navbar-hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
@@ -52,15 +60,15 @@ function initNavbar() {
     menu.className = 'mobile-menu';
     menu.id = 'mobileMenu';
     menu.innerHTML = `
-      <a href="index.html">Home</a>
-      <a href="find-queuemate.html">Find QueueMate</a>
-      <a href="tournaments.html">Tournaments</a>
+      ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
+      ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
+      ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
       ${loggedIn
-        ? `<a href="#" onclick="openMailbox();return false;">Mailbox</a>
-           <a href="dashboard.html">My Profile</a>
-           ${admin ? `<a href="admin.html">Admin</a>` : ''}
-           <a href="#" onclick="handleLogout()">Logout</a>`
-        : `<a href="login.html">Login</a><a href="register.html">Register</a>`}
+        ? `${actionNavItemHTML('Mailbox', '✉', 'openMailbox();return false;')}
+           ${navItemHTML('dashboard.html', 'My Profile', '☺', active('dashboard.html'))}
+           ${admin ? navItemHTML('admin.html', 'Admin', '★', active('admin.html')) : ''}
+           ${actionNavItemHTML('Logout', '↗', 'handleLogout();return false;')}`
+        : `${navItemHTML('login.html', 'Login', '→', active('login.html'))}${navItemHTML('register.html', 'Register', '+', active('register.html'))}`}
     `;
     const ref = el.nextSibling;
     document.body.insertBefore(menu, ref);
@@ -622,11 +630,11 @@ function initSidebar() {
       <div class="sidebar-card sidebar-nav-card">
         <div class="sidebar-card-title">Navigation</div>
         <div class="sidebar-nav-links">
-          <a href="index.html" class="${active('index.html')}">Home</a>
-          <a href="find-queuemate.html" class="${active('find-queuemate.html')}">Find QueueMate</a>
-          <a href="tournaments.html" class="${active('tournaments.html')}">Tournaments</a>
-          ${loggedIn ? `<a href="dashboard.html" class="${active('dashboard.html')}">My Profile</a>` : ''}
-          ${isAdmin() ? `<a href="admin.html" class="${active('admin.html')}">Admin Panel</a>` : ''}
+          ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
+          ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
+          ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
+          ${loggedIn ? navItemHTML('dashboard.html', 'My Profile', '☺', active('dashboard.html')) : ''}
+          ${isAdmin() ? navItemHTML('admin.html', 'Admin Panel', '★', active('admin.html')) : ''}
         </div>
       </div>
 
@@ -650,10 +658,10 @@ function initSidebar() {
       ${loggedIn ? `<div class="sidebar-card">
         <div class="sidebar-card-title">Quick Actions</div>
         <div class="sidebar-nav-links quick-links">
-          <a href="index.html">New Post</a>
-          <a href="find-queuemate.html">Find Teammate</a>
-          <a href="tournaments.html#create-tournament">Post Tournament</a>
-          <a href="#" onclick="openMailbox();return false;">Mailbox</a>
+          ${navItemHTML('index.html', 'New Post', '+')}
+          ${navItemHTML('find-queuemate.html', 'Find Teammate', '🎯')}
+          ${navItemHTML('tournaments.html#create-tournament', 'Post Tournament', '🏅')}
+          ${actionNavItemHTML('Mailbox', '✉', 'openMailbox();return false;')}
         </div>
       </div>` : ''}
     </div>
