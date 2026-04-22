@@ -28,7 +28,7 @@ function renderQmForm() {
         <div class="create-box-collapsed-title">Post a teammate request</div>
         <div class="create-box-collapsed-subtitle">Share your rank, game, and schedule so other players can find you fast.</div>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm">${_qmCreateExpanded ? 'Open' : 'Create'}</button>
+      <button type="button" class="btn btn-ghost btn-sm">Post</button>
     </div>
     <div class="create-box-expander qm-create-expander">
       <div style="display:flex;align-items:center;justify-content:space-between;margin:var(--space-md) 0">

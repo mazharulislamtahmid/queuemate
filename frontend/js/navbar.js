@@ -6,11 +6,56 @@ let _mailboxLoadingFriendshipId = '';
 let _navbarGlobalHandlersBound = false;
 
 function navItemHTML(href, label, icon, activeClass = '', extraClass = '') {
-  return `<a href="${href}" class="${[activeClass, extraClass].filter(Boolean).join(' ')}" aria-label="${escHtml(label)}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span class="nav-link-label">${label}</span></a>`;
+  return `<a href="${href}" class="${[activeClass, extraClass].filter(Boolean).join(' ')}" aria-label="${escHtml(label)}"><span class="nav-icon-badge" aria-hidden="true">${resolveNavbarIcon(icon)}</span><span class="nav-link-label">${label}</span></a>`;
 }
 
 function actionNavItemHTML(label, icon, onclick) {
-  return `<a href="#" onclick="${onclick}" aria-label="${escHtml(label)}"><span class="nav-icon-badge" aria-hidden="true">${icon}</span><span class="nav-link-label">${label}</span></a>`;
+  return `<a href="#" onclick="${onclick}" aria-label="${escHtml(label)}"><span class="nav-icon-badge" aria-hidden="true">${resolveNavbarIcon(icon)}</span><span class="nav-link-label">${label}</span></a>`;
+}
+
+function navbarIcon(name) {
+  const icons = {
+    logo: `<svg class="logo-mark-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m15.6 15.6 4 4"></path><path d="M10 8.8h3.8"></path><path d="M10 11.6h3"></path></svg>`,
+    home: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5"></path><path d="M6 9.5V20h12V9.5"></path><path d="M9.5 20v-5h5v5"></path></svg>`,
+    squad: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="2.25"></circle><circle cx="16.5" cy="8" r="1.75"></circle><path d="M4.5 18a4 4 0 0 1 7 0"></path><path d="M13.5 17.5a3.25 3.25 0 0 1 5.5-2.2"></path></svg>`,
+    trophy: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4.5h8v3a4 4 0 0 1-8 0z"></path><path d="M8 6H5.5a2 2 0 0 0 2 2H8"></path><path d="M16 6h2.5a2 2 0 0 1-2 2H16"></path><path d="M12 11.5V16"></path><path d="M9 19.5h6"></path><path d="M8 16h8"></path></svg>`,
+    search: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="5.5"></circle><path d="m16 16 4 4"></path></svg>`,
+    mailbox: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16v9H4z"></path><path d="m4.5 8 7.5 5.5L19.5 8"></path></svg>`,
+    profile: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3"></circle><path d="M5 19a7 7 0 0 1 14 0"></path></svg>`,
+    admin: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 18 6v5c0 3.8-2.6 6.2-6 8-3.4-1.8-6-4.2-6-8V6z"></path><path d="m9.4 11.8 1.7 1.7 3.6-3.6"></path></svg>`,
+    logout: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5H5.5v15H9"></path><path d="m14 8 5 4-5 4"></path><path d="M19 12H9"></path></svg>`,
+    login: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5h3.5v15H15"></path><path d="m10 8-5 4 5 4"></path><path d="M5 12h10"></path></svg>`,
+    register: `<svg class="nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="2.5"></circle><path d="M4.5 18a4.5 4.5 0 0 1 9 0"></path><path d="M18 8v6"></path><path d="M15 11h6"></path></svg>`,
+  };
+
+  return icons[name] || '';
+}
+
+function resolveNavbarIcon(icon) {
+  if (typeof icon !== 'string') return icon;
+  if (icon.includes('<svg')) return icon;
+
+  const iconMap = {
+    'âŒ‚': 'home',
+    '⌂': 'home',
+    'ðŸŽ®': 'squad',
+    '🎮': 'squad',
+    'ðŸ†': 'trophy',
+    '🏆': 'trophy',
+    'âœ‰': 'mailbox',
+    '✉': 'mailbox',
+    'â˜º': 'profile',
+    '☺': 'profile',
+    'â˜…': 'admin',
+    '★': 'admin',
+    'â†—': 'logout',
+    '↗': 'logout',
+    'â†’': 'login',
+    '→': 'login',
+    '+': 'register',
+  };
+
+  return iconMap[icon] ? navbarIcon(iconMap[icon]) : icon;
 }
 
 function closeNavbarFeedSearch() {
@@ -79,13 +124,13 @@ function initNavbar() {
        <a href="register.html" class="btn btn-primary btn-sm">Register</a>`;
 
   const homeSearchHTML = isHomePage
-    ? `<a href="#" id="navbarFeedSearchTrigger" class="nav-icon-only navbar-search-link" aria-label="Search feed" onclick="toggleNavbarFeedSearch(event);return false;"><span class="nav-icon-badge" aria-hidden="true">&#128269;</span><span class="nav-link-label">Search</span></a>`
+    ? `<a href="#" id="navbarFeedSearchTrigger" class="nav-icon-only navbar-search-link" aria-label="Search feed" onclick="toggleNavbarFeedSearch(event);return false;"><span class="nav-icon-badge" aria-hidden="true">${navbarIcon('search')}</span><span class="nav-link-label">Search</span></a>`
     : '';
 
   const homeSearchPanelHTML = isHomePage
     ? `<div class="navbar-search-panel" id="navbarFeedSearchPanel">
          <div class="navbar-search-input-wrap">
-           <span class="navbar-search-icon" aria-hidden="true">&#128269;</span>
+           <span class="navbar-search-icon" aria-hidden="true">${navbarIcon('search')}</span>
            <input type="text" id="navbarFeedSearch" placeholder="Search posts, players, or updates" autocomplete="off">
          </div>
        </div>`
@@ -93,7 +138,7 @@ function initNavbar() {
 
   el.innerHTML = `
     <a href="index.html" class="navbar-logo">
-      <div class="logo-icon">Q</div>
+      <div class="logo-icon">${navbarIcon('logo')}</div>
       <span class="logo-text">Queue<span>Mate</span></span>
     </a>
     <nav class="navbar-nav">

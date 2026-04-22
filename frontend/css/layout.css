@@ -43,6 +43,16 @@
   box-shadow: var(--shadow-glow);
   flex-shrink: 0;
 }
+.logo-mark-svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .navbar-logo .logo-text span { color: var(--accent); }
 .navbar-nav {
   display: flex;
@@ -129,6 +139,9 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .navbar-search-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   color: var(--text-muted);
   font-size: 0.92rem;
@@ -602,6 +615,20 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.nav-icon-svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.navbar-search-icon .nav-icon-svg {
+  width: 14px;
+  height: 14px;
 }
 .sidebar-nav-links a:hover {
   color: var(--text-primary);

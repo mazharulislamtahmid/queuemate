@@ -170,7 +170,7 @@ function renderFeaturedTournament(hasError = false) {
             <h1>${hasError ? 'Could not load event' : 'No featured tournament yet'}</h1>
           </div>
           <div class="featured-hero-actions">
-            <a href="tournaments.html" class="btn btn-primary btn-lg">Explore</a>
+            <a href="tournaments.html" class="btn btn-primary btn-sm featured-hero-btn">Explore</a>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@ function renderFeaturedTournament(hasError = false) {
           <h1>${escHtml(t.title)}</h1>
         </div>
         <div class="featured-hero-actions">
-          <a href="${detailsHref}" class="btn btn-primary btn-lg" onclick="event.stopPropagation()">Explore</a>
+          <a href="${detailsHref}" class="btn btn-primary btn-sm featured-hero-btn" onclick="event.stopPropagation()">Explore</a>
         </div>
       </div>
     </div>
@@ -224,7 +224,7 @@ function renderCreateBox() {
         <div class="create-box-collapsed-title">${loggedIn ? `What's on your mind, ${escHtml(user?.name?.split(' ')[0] || 'player')}?` : 'Join the QueueMate conversation'}</div>
         <div class="create-box-collapsed-subtitle">${loggedIn ? 'Share a quick update with one compact post.' : 'Log in to create a post for the community.'}</div>
       </div>
-      ${loggedIn ? '<button type="button" class="btn btn-ghost btn-sm">Create Post</button>' : '<a href="login.html" class="btn btn-ghost btn-sm">Login</a>'}
+      ${loggedIn ? '<button type="button" class="btn btn-ghost btn-sm">Post</button>' : '<a href="login.html" class="btn btn-ghost btn-sm">Login</a>'}
     </div>
     ${loggedIn ? `
       <div class="create-box-expander feed-create-expander">

@@ -45,16 +45,16 @@ function renderTournamentCreateBox() {
     return;
   }
 
-  el.innerHTML = `<div class="create-box create-box-shell ${_tournCreateExpanded ? 'expanded' : ''}">
-    <div class="create-box-collapsed" onclick="expandTournamentCreateBox()">
+  el.innerHTML = `<div class="create-box create-box-shell tourn-create-shell ${_tournCreateExpanded ? 'expanded' : ''}">
+    <div class="create-box-collapsed tourn-create-collapsed" onclick="expandTournamentCreateBox()">
       <img src="${avatarFallback(getCurrentUser()?.avatarUrl)}" class="post-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">
       <div class="create-box-collapsed-copy">
         <div class="create-box-collapsed-title">Post a tournament</div>
         <div class="create-box-collapsed-subtitle">Share a new event, prize pool, and registration details.</div>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm">${_tournCreateExpanded ? 'Open' : 'Create'}</button>
+      <button type="button" class="btn btn-ghost btn-sm">Post</button>
     </div>
-    <div class="create-box-expander">
+    <div class="create-box-expander tourn-create-expander">
       <div class="create-box-header">
         <div class="create-box-title-wrap">
           <div class="create-box-badge">Tournament</div>
