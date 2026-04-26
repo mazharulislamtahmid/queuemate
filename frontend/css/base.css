@@ -82,6 +82,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 15px; }
+html, body { max-width: 100%; overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   background:
@@ -113,6 +114,7 @@ input, textarea, select {
   border-radius: var(--radius-md);
   padding: 12px 14px;
   width: 100%;
+  min-width: 0;
   outline: none;
   transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
 }

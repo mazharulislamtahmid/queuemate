@@ -45,7 +45,10 @@ function validateContentLength(content) {
 }
 
 function validatePostImageAspect(aspect) {
-  return !aspect || ['1:1', '3:4', '4:3'].includes(aspect);
+  if (!aspect) return true;
+  if (!/^\d{1,5}:\d{1,5}$/.test(aspect)) return false;
+  const [width, height] = aspect.split(':').map(Number);
+  return width > 0 && height > 0;
 }
 
 function validateDateOrder(startDate, endDate) {

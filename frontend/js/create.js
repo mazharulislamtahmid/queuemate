@@ -114,7 +114,7 @@ function renderCLangs() {
   _cLangs.forEach(l => {
     const chip = document.createElement('span');
     chip.className = 'lang-chip';
-    chip.innerHTML = `${escHtml(l)} <span class="chip-remove" onclick="removeCLang('${escHtml(l)}')">x</span>`;
+    chip.innerHTML = `${escHtml(l)} <span class="chip-remove" onclick="removeCLang(${escJsArg(l)})">x</span>`;
     wrapper.insertBefore(chip, input);
   });
 }

@@ -10,11 +10,12 @@ function formatRelative(d) {
 }
 function truncate(s,n=120){if(!s)return '';return s.length>n?s.slice(0,n)+'…':s;}
 function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escJsArg(s){return escHtml(JSON.stringify(String(s ?? '')));}
 function avatarFallback(url){return url||'assets/default-avatar.svg';}
 function coverFallback(url){return url||'assets/default-poster.svg';}
 function posterFallback(url){return url||'assets/default-poster.svg';}
 function isValidDataImage(s){return typeof s==='string'&&/^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(s);}
-function isValidUrl(s){if(!s)return true;if(isValidDataImage(s))return true;try{new URL(s);return true;}catch{return false;}}
+function isValidUrl(s){if(!s)return true;if(isValidDataImage(s))return true;try{const u=new URL(s);return u.protocol==='http:'||u.protocol==='https:';}catch{return false;}}
 function isValidEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
 function calcTier(p){const n=Number(p)||0;if(n>50000)return 'S';if(n>20000)return 'A';if(n>5000)return 'B';return 'C';}
 function calcStatus(s,e){const now=new Date(),start=new Date(s),end=new Date(e);if(now<start)return 'upcoming';if(now<=end)return 'ongoing';return 'over';}

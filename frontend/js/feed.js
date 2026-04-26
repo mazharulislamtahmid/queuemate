@@ -16,33 +16,38 @@ const POST_IMAGE_ASPECTS = [
   { value: '1:1', label: '1:1', ratio: 1, className: 'post-media-1-1' },
   { value: '3:4', label: '3:4', ratio: 3 / 4, className: 'post-media-3-4' },
   { value: '4:3', label: '4:3', ratio: 4 / 3, className: 'post-media-4-3' },
+  { value: '16:9', label: '16:9', ratio: 16 / 9, className: 'post-media-16-9' },
 ];
 
 function normalizePostImageAspect(aspect) {
-  return POST_IMAGE_ASPECTS.find(item => item.value === aspect)?.value || '4:3';
+  if (typeof aspect !== 'string') return '4:3';
+  const trimmed = aspect.trim();
+  if (POST_IMAGE_ASPECTS.some(item => item.value === trimmed)) return trimmed;
+  if (!/^\d{1,5}:\d{1,5}$/.test(trimmed)) return '4:3';
+  const [width, height] = trimmed.split(':').map(Number);
+  return width > 0 && height > 0 ? trimmed : '4:3';
 }
 
 function getPostImageAspectMeta(aspect) {
   return POST_IMAGE_ASPECTS.find(item => item.value === normalizePostImageAspect(aspect)) || POST_IMAGE_ASPECTS[2];
 }
 
-function getClosestPostImageAspect(width, height) {
+function getPostImageAspectRatio(aspect) {
+  const normalized = normalizePostImageAspect(aspect);
+  const [width, height] = normalized.split(':').map(Number);
+  return width && height ? `${width} / ${height}` : '4 / 3';
+}
+
+function getReducedPostImageAspect(width, height) {
   if (!width || !height) return '4:3';
-  const actualRatio = width / height;
-  let best = POST_IMAGE_ASPECTS[0];
-  let minDiff = Infinity;
-  POST_IMAGE_ASPECTS.forEach(item => {
-    const diff = Math.abs(actualRatio - item.ratio);
-    if (diff < minDiff) {
-      minDiff = diff;
-      best = item;
-    }
-  });
-  return best.value;
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const divisor = gcd(width, height) || 1;
+  return `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
 }
 
 function postImageAspectClass(aspect) {
-  return getPostImageAspectMeta(aspect).className;
+  const normalized = normalizePostImageAspect(aspect);
+  return POST_IMAGE_ASPECTS.find(item => item.value === normalized)?.className || 'post-media-custom';
 }
 
 async function readPostImageFile(file) {
@@ -55,7 +60,7 @@ async function readPostImageFile(file) {
 
   const imageAspect = await new Promise(resolve => {
     const probe = new Image();
-    probe.onload = () => resolve(getClosestPostImageAspect(probe.naturalWidth, probe.naturalHeight));
+    probe.onload = () => resolve(getReducedPostImageAspect(probe.naturalWidth, probe.naturalHeight));
     probe.onerror = () => resolve('4:3');
     probe.src = dataUrl;
   });
@@ -435,13 +440,14 @@ function renderPostCard(p) {
   const commentCount = p.comments?.length || 0;
   const hasImage = !!p.imageUrl;
   const imageAspectClass = postImageAspectClass(p.imageAspect);
+  const imageAspectStyle = hasImage ? ` style="aspect-ratio:${escHtml(getPostImageAspectRatio(p.imageAspect))}"` : '';
   const userAvatar = profileAnchor(p.user, `<img src="${avatarFallback(p.user?.avatarUrl)}" class="post-avatar" alt="" onerror="this.src='assets/default-avatar.svg'">`, 'profile-entry-link profile-avatar-link');
   const userName = profileAnchor(p.user, `<div class="post-user-name">${escHtml(p.user?.name || 'Unknown')}</div>`, 'profile-entry-link');
   return `<div class="card post-card ${hasImage ? 'post-card-hero' : 'post-card-text'}" id="post-${escHtml(p._id)}">
     <div class="card-body">
       ${renderPostMenu(p)}
       ${hasImage ? `
-        <div class="post-hero-media ${imageAspectClass}">
+        <div class="post-hero-media ${imageAspectClass}"${imageAspectStyle}>
           <img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${p.user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">
           <div class="post-image-overlay"></div>
           <div class="post-floating-profile">

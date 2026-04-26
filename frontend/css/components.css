@@ -12,6 +12,7 @@
   border: 1px solid transparent;
   white-space: nowrap;
   text-decoration: none;
+  min-width: 0;
 }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn-primary {
@@ -249,6 +250,7 @@
   min-height: 0;
   aspect-ratio: 4 / 3;
   background: linear-gradient(180deg, rgba(11, 15, 20, 0.94), rgba(8, 11, 16, 0.98));
+  overflow: hidden;
 }
 .post-media-1-1 {
   aspect-ratio: 1 / 1;
@@ -258,6 +260,9 @@
 }
 .post-media-4-3 {
   aspect-ratio: 4 / 3;
+}
+.post-media-16-9 {
+  aspect-ratio: 16 / 9;
 }
 .post-image-overlay {
   position: absolute;
@@ -351,7 +356,8 @@
   width: 100%;
   height: 100%;
   max-height: none;
-  object-fit: cover;
+  object-fit: contain;
+  background: linear-gradient(180deg, rgba(11, 15, 20, 0.96), rgba(8, 11, 16, 0.99));
 }
 .post-image-clickable {
   cursor: zoom-in;
@@ -762,11 +768,17 @@
   font-size: 0.96rem;
   font-weight: 700;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .create-box-collapsed-subtitle {
   font-size: 0.8rem;
   color: var(--text-muted);
   margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .create-box-expander {
   max-height: 0;

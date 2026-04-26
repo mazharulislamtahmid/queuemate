@@ -10,7 +10,19 @@ const postSchema = new mongoose.Schema({
   user:     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   content:  { type: String, required: true, maxlength: 2000 },
   imageUrl: { type: String, default: '' },
-  imageAspect: { type: String, enum: ['', '1:1', '3:4', '4:3'], default: '' },
+  imageAspect: {
+    type: String,
+    default: '',
+    validate: {
+      validator: value => {
+        if (!value) return true;
+        if (!/^\d{1,5}:\d{1,5}$/.test(value)) return false;
+        const [width, height] = value.split(':').map(Number);
+        return width > 0 && height > 0;
+      },
+      message: 'Invalid image aspect.',
+    },
+  },
   category: { type: String, enum: ['news','result','recruitment'], required: true },
   likes:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [commentSchema],

@@ -31,8 +31,8 @@ function renderQmForm() {
       <button type="button" class="btn btn-ghost btn-sm">Post</button>
     </div>
     <div class="create-box-expander qm-create-expander">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:var(--space-md) 0">
-        <span class="section-title">Post a Teammate Request</span>
+      <div class="qm-expander-header">
+        <span class="section-title qm-expander-title">Post a Teammate Request</span>
         <span id="qmTeamSizeLabel" class="badge badge-news">Select a game</span>
       </div>
       <div class="two-col">
@@ -107,7 +107,7 @@ function renderLangChips(prefix) {
   _langChips.forEach(l => {
     const chip = document.createElement('span');
     chip.className = 'lang-chip';
-    chip.innerHTML = `${escHtml(l)} <span class="chip-remove" onclick="removeLangChip('${escHtml(l)}','${prefix}')">x</span>`;
+    chip.innerHTML = `${escHtml(l)} <span class="chip-remove" onclick="removeLangChip(${escJsArg(l)},${escJsArg(prefix)})">x</span>`;
     wrapper.insertBefore(chip, input);
   });
 }
@@ -211,7 +211,7 @@ function renderQmCard(p) {
           <div class="qm-card-actions">
             ${isOwn
               ? `<button class="btn btn-danger btn-sm" onclick="deleteQueuemate('${escHtml(p._id)}')">Delete</button>`
-              : `<button class="btn btn-primary btn-sm" onclick="openMatchupModal('${escHtml(p._id)}','${escHtml(p.user?.name||'')}','${escHtml(p.user?.avatarUrl||'')}')">Matchup Request</button>`}
+              : `<button class="btn btn-primary btn-sm" onclick="openMatchupModal(${escJsArg(p._id)},${escJsArg(p.user?.name||'')},${escJsArg(p.user?.avatarUrl||'')})">Matchup Request</button>`}
           </div>
         </div>
       </div>

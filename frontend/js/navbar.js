@@ -34,6 +34,8 @@ function navbarIcon(name) {
 function resolveNavbarIcon(icon) {
   if (typeof icon !== 'string') return icon;
   if (icon.includes('<svg')) return icon;
+  const directIcon = navbarIcon(icon);
+  if (directIcon) return directIcon;
 
   const iconMap = {
     'âŒ‚': 'home',
@@ -142,9 +144,9 @@ function initNavbar() {
       <span class="logo-text">Queue<span>Mate</span></span>
     </a>
     <nav class="navbar-nav">
-      ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
-      ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
-      ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
+      ${navItemHTML('index.html', 'Home', 'home', active('index.html'))}
+      ${navItemHTML('find-queuemate.html', 'Find QueueMate', 'squad', active('find-queuemate.html'))}
+      ${navItemHTML('tournaments.html', 'Tournaments', 'trophy', active('tournaments.html'))}
       ${homeSearchHTML}
     </nav>
     <div class="navbar-actions">${authHTML}</div>
@@ -158,15 +160,15 @@ function initNavbar() {
     menu.className = 'mobile-menu';
     menu.id = 'mobileMenu';
     menu.innerHTML = `
-      ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
-      ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
-      ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
+      ${navItemHTML('index.html', 'Home', 'home', active('index.html'))}
+      ${navItemHTML('find-queuemate.html', 'Find QueueMate', 'squad', active('find-queuemate.html'))}
+      ${navItemHTML('tournaments.html', 'Tournaments', 'trophy', active('tournaments.html'))}
       ${loggedIn
-        ? `${actionNavItemHTML('Mailbox', '✉', 'openMailbox();return false;')}
-           ${navItemHTML('dashboard.html', 'My Profile', '☺', active('dashboard.html'))}
-           ${admin ? navItemHTML('admin.html', 'Admin', '★', active('admin.html')) : ''}
-           ${actionNavItemHTML('Logout', '↗', 'handleLogout();return false;')}`
-        : `${navItemHTML('login.html', 'Login', '→', active('login.html'))}${navItemHTML('register.html', 'Register', '+', active('register.html'))}`}
+        ? `${actionNavItemHTML('Mailbox', 'mailbox', 'openMailbox();return false;')}
+           ${navItemHTML('dashboard.html', 'My Profile', 'profile', active('dashboard.html'))}
+           ${admin ? navItemHTML('admin.html', 'Admin', 'admin', active('admin.html')) : ''}
+           ${actionNavItemHTML('Logout', 'logout', 'handleLogout();return false;')}`
+        : `${navItemHTML('login.html', 'Login', 'login', active('login.html'))}${navItemHTML('register.html', 'Register', 'register', active('register.html'))}`}
     `;
     const ref = el.nextSibling;
     document.body.insertBefore(menu, ref);
@@ -734,11 +736,11 @@ function initSidebar() {
       <div class="sidebar-card sidebar-nav-card">
         <div class="sidebar-card-title">Navigation</div>
         <div class="sidebar-nav-links">
-          ${navItemHTML('index.html', 'Home', '⌂', active('index.html'))}
-          ${navItemHTML('find-queuemate.html', 'Find QueueMate', '🎮', active('find-queuemate.html'))}
-          ${navItemHTML('tournaments.html', 'Tournaments', '🏆', active('tournaments.html'))}
-          ${loggedIn ? navItemHTML('dashboard.html', 'My Profile', '☺', active('dashboard.html')) : ''}
-          ${isAdmin() ? navItemHTML('admin.html', 'Admin Panel', '★', active('admin.html')) : ''}
+          ${navItemHTML('index.html', 'Home', 'home', active('index.html'))}
+          ${navItemHTML('find-queuemate.html', 'Find QueueMate', 'squad', active('find-queuemate.html'))}
+          ${navItemHTML('tournaments.html', 'Tournaments', 'trophy', active('tournaments.html'))}
+          ${loggedIn ? navItemHTML('dashboard.html', 'My Profile', 'profile', active('dashboard.html')) : ''}
+          ${isAdmin() ? navItemHTML('admin.html', 'Admin Panel', 'admin', active('admin.html')) : ''}
         </div>
       </div>
 
@@ -763,9 +765,9 @@ function initSidebar() {
         <div class="sidebar-card-title">Quick Actions</div>
         <div class="sidebar-nav-links quick-links">
           ${navItemHTML('index.html', 'New Post', '+')}
-          ${navItemHTML('find-queuemate.html', 'Find Teammate', '🎯')}
-          ${navItemHTML('tournaments.html#create-tournament', 'Post Tournament', '🏅')}
-          ${actionNavItemHTML('Mailbox', '✉', 'openMailbox();return false;')}
+          ${navItemHTML('find-queuemate.html', 'Find Teammate', 'squad')}
+          ${navItemHTML('tournaments.html#create-tournament', 'Post Tournament', 'trophy')}
+          ${actionNavItemHTML('Mailbox', 'mailbox', 'openMailbox();return false;')}
         </div>
       </div>` : ''}
     </div>

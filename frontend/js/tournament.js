@@ -55,10 +55,10 @@ function renderTournamentCreateBox() {
       <button type="button" class="btn btn-ghost btn-sm">Post</button>
     </div>
     <div class="create-box-expander tourn-create-expander">
-      <div class="create-box-header">
+      <div class="create-box-header tourn-expander-header">
         <div class="create-box-title-wrap">
           <div class="create-box-badge">Tournament</div>
-          <h3>Publish a tournament</h3>
+          <h3 class="tourn-expander-title">Publish a tournament</h3>
           <p>Add the poster, event details, and dates. Other players will see it in the tournament feed.</p>
         </div>
         <span id="ttTeamSizeLabel" class="badge badge-news">-</span>
