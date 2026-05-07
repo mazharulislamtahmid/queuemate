@@ -38,7 +38,7 @@ async function submitCreatePost() {
   }
 }
 
-function handleCreatePostImageSelect(event) {
+async function handleCreatePostImageSelect(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -51,9 +51,9 @@ function handleCreatePostImageSelect(event) {
     event.target.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => {
-    _createPostImage = typeof reader.result === 'string' ? reader.result : '';
+  try {
+    const image = await compressImageFile(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.74 });
+    _createPostImage = image.dataUrl;
     const wrap = document.getElementById('cpImgPrevWrap');
     const img = document.getElementById('cpImgPrev');
     if (wrap && img && _createPostImage) {
@@ -61,9 +61,11 @@ function handleCreatePostImageSelect(event) {
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
-  };
-  reader.onerror = () => showToast('Failed to read image', 'error');
-  reader.readAsDataURL(file);
+  } catch (error) {
+    showToast(error.message || 'Failed to read image', 'error');
+  } finally {
+    event.target.value = '';
+  }
 }
 
 function clearCreatePostImage() {
@@ -232,7 +234,7 @@ async function submitCreateTournament() {
   }
 }
 
-function handleTournamentPosterSelect(event) {
+async function handleTournamentPosterSelect(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -245,9 +247,9 @@ function handleTournamentPosterSelect(event) {
     event.target.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => {
-    _createTournamentPoster = typeof reader.result === 'string' ? reader.result : '';
+  try {
+    const image = await compressImageFile(file, { maxWidth: 1280, maxHeight: 720, quality: 0.76 });
+    _createTournamentPoster = image.dataUrl;
     const wrap = document.getElementById('ctPosterPreviewWrap');
     const img = document.getElementById('ctPosterPreview');
     if (wrap && img && _createTournamentPoster) {
@@ -255,9 +257,11 @@ function handleTournamentPosterSelect(event) {
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
-  };
-  reader.onerror = () => showToast('Failed to read image', 'error');
-  reader.readAsDataURL(file);
+  } catch (error) {
+    showToast(error.message || 'Failed to read image', 'error');
+  } finally {
+    event.target.value = '';
+  }
 }
 
 function clearTournamentPoster() {

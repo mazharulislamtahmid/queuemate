@@ -2,6 +2,12 @@ const Post = require('../models/Post');
 const { logActivity } = require('../utils/activityLogger');
 const { validateUrl, validateContentLength, validatePostImageAspect } = require('../utils/validators');
 
+function parseListLimit(value, fallback = 12, max = 30) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
+}
+
 const getPosts = async (req, res) => {
   try {
     const { category, search, userId, limit } = req.query;
@@ -14,7 +20,7 @@ const getPosts = async (req, res) => {
       .populate('user', 'name avatarUrl coverPhotoUrl')
       .populate('comments.user', 'name avatarUrl coverPhotoUrl')
       .sort({ createdAt: -1 })
-      .limit(limit ? parseInt(limit) : 50);
+      .limit(parseListLimit(limit));
 
     const currentUserId = req.user?._id?.toString();
     const result = posts.map(p => {

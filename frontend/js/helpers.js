@@ -23,6 +23,50 @@ function calcQmExpiry(createdAt){const exp=new Date(new Date(createdAt).getTime(
 function isQmExpired(createdAt){return calcQmExpiry(createdAt)<=0;}
 function expiryLabel(createdAt){const d=calcQmExpiry(createdAt);if(d<=0)return{text:'Expired',soon:false,expired:true};if(d===1)return{text:'Expires today',soon:true,expired:false};return{text:`Expires in ${d} day${d!==1?'s':''}`,soon:d<=2,expired:false};}
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+    reader.onerror = () => reject(new Error('Failed to read image'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function compressImageFile(file, options = {}) {
+  const maxWidth = options.maxWidth || 1280;
+  const maxHeight = options.maxHeight || 1280;
+  const quality = options.quality || 0.74;
+
+  if (!file || !file.type?.startsWith('image/')) throw new Error('Please choose an image file');
+
+  const originalDataUrl = await readFileAsDataUrl(file);
+  const img = await new Promise((resolve, reject) => {
+    const probe = new Image();
+    probe.onload = () => resolve(probe);
+    probe.onerror = () => reject(new Error('Failed to read image'));
+    probe.src = originalDataUrl;
+  });
+
+  const sourceWidth = img.naturalWidth || img.width;
+  const sourceHeight = img.naturalHeight || img.height;
+  if (!sourceWidth || !sourceHeight) return { dataUrl: originalDataUrl, width: 0, height: 0 };
+
+  const scale = Math.min(1, maxWidth / sourceWidth, maxHeight / sourceHeight);
+  const width = Math.max(1, Math.round(sourceWidth * scale));
+  const height = Math.max(1, Math.round(sourceHeight * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return { dataUrl: originalDataUrl, width: sourceWidth, height: sourceHeight };
+
+  ctx.drawImage(img, 0, 0, width, height);
+  const type = file.type === 'image/png' && file.size < 700 * 1024 ? 'image/png' : 'image/jpeg';
+  const dataUrl = canvas.toDataURL(type, type === 'image/jpeg' ? quality : undefined);
+  return { dataUrl: dataUrl.length < originalDataUrl.length ? dataUrl : originalDataUrl, width, height };
+}
+
 function populateRankDropdown(sel,game){sel.innerHTML='<option value="">— Select Rank —</option>';const cfg=GAME_CONFIG[game];if(!cfg)return;cfg.ranks.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;sel.appendChild(o);});}
 function populateTeammateDropdown(sel,game){sel.innerHTML='<option value="">— Select Need —</option>';const cfg=GAME_CONFIG[game];if(!cfg)return;cfg.teammates.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o);});}
 

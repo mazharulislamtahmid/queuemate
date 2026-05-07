@@ -229,7 +229,7 @@ function renderDashboardPage() {
 
   const achievements = normalizedAchievements.map(item => `
     <article class="gamer-profile-achievement-bar">
-      ${item.imageUrl ? `<div class="gamer-profile-achievement-thumb"><img src="${escHtml(item.imageUrl)}" alt="${escHtml(item.title || 'Achievement')}" onerror="this.parentElement.style.display='none'"></div>` : '<div class="gamer-profile-achievement-accent"></div>'}
+      ${item.imageUrl ? `<div class="gamer-profile-achievement-thumb"><img src="${escHtml(item.imageUrl)}" alt="${escHtml(item.title || 'Achievement')}" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'"></div>` : '<div class="gamer-profile-achievement-accent"></div>'}
       <div class="gamer-profile-achievement-copy">
         ${item.title ? `<div class="gamer-profile-achievement-text">${escHtml(item.title)}</div>` : '<div class="gamer-profile-achievement-text">Achievement highlight</div>'}
       </div>
@@ -459,7 +459,7 @@ function handleDashboardAchievementImage(event, index) {
     if (!_dashboardAchievementDrafts[index]) return;
     _dashboardAchievementDrafts[index].imageUrl = result;
     refreshDashboardAchievementEditor();
-  });
+  }, { maxWidth: 900, maxHeight: 900, quality: 0.74 });
 }
 
 function renderDashPosts() {
@@ -501,7 +501,7 @@ function renderDashboardPostCard(p) {
       <div class="post-copy-wrap">
         ${renderDashboardPostContentBlock(p._id, p.content)}
       </div>
-      ${p.imageUrl ? `<img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">` : ''}
+      ${p.imageUrl ? `<img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" loading="lazy" decoding="async" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">` : ''}
       <div class="dashboard-post-meta">
         <span>${p.likes?.length || p.likesCount || 0} likes</span>
         <span>${p.comments?.length || 0} comments</span>
@@ -595,7 +595,7 @@ function openDashboardAchievementManager() {
   openModal(modal);
 }
 
-function readDashboardImageFile(event, onLoad) {
+async function readDashboardImageFile(event, onLoad, options = {}) {
   const file = event.target?.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -608,11 +608,14 @@ function readDashboardImageFile(event, onLoad) {
     event.target.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => onLoad(typeof reader.result === 'string' ? reader.result : '');
-  reader.onerror = () => showToast('Failed to read image file', 'error');
-  reader.readAsDataURL(file);
-  event.target.value = '';
+  try {
+    const image = await compressImageFile(file, options);
+    onLoad(image.dataUrl);
+  } catch (error) {
+    showToast(error.message || 'Failed to read image file', 'error');
+  } finally {
+    event.target.value = '';
+  }
 }
 
 function handleDashboardAvatarSelect(event) {
@@ -627,7 +630,7 @@ function handleDashboardAvatarSelect(event) {
       preview.style.display = 'block';
       previewWrap.style.display = 'flex';
     }
-  });
+  }, { maxWidth: 480, maxHeight: 480, quality: 0.78 });
 }
 
 function clearDashboardAvatar() {
@@ -657,7 +660,7 @@ function handleDashboardCoverSelect(event) {
       preview.style.display = 'block';
       previewWrap.style.display = 'flex';
     }
-  });
+  }, { maxWidth: 1280, maxHeight: 720, quality: 0.76 });
 }
 
 function clearDashboardCover() {
@@ -792,7 +795,7 @@ function handleDashboardPostImageSelect(event) {
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
-  });
+  }, { maxWidth: 1280, maxHeight: 1280, quality: 0.74 });
 }
 
 function clearDashboardPostImage() {

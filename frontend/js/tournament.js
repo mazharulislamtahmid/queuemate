@@ -140,7 +140,7 @@ function renderTournamentCreateTierPreview() {
   if (tp) tp.innerHTML = prize ? `Tier: ${tierBadgeHTML(calcTier(prize))}` : '';
 }
 
-function readTournamentCreateImageFile(event, onLoad) {
+async function readTournamentCreateImageFile(event, onLoad, options = {}) {
   const file = event.target?.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -153,11 +153,14 @@ function readTournamentCreateImageFile(event, onLoad) {
     event.target.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => onLoad(typeof reader.result === 'string' ? reader.result : '');
-  reader.onerror = () => showToast('Failed to read image', 'error');
-  reader.readAsDataURL(file);
-  event.target.value = '';
+  try {
+    const image = await compressImageFile(file, options);
+    onLoad(image.dataUrl);
+  } catch (error) {
+    showToast(error.message || 'Failed to read image', 'error');
+  } finally {
+    event.target.value = '';
+  }
 }
 
 function handleTournamentCreatePosterSelect(event) {
@@ -170,7 +173,7 @@ function handleTournamentCreatePosterSelect(event) {
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
-  });
+  }, { maxWidth: 1280, maxHeight: 720, quality: 0.76 });
 }
 
 function clearTournamentCreatePoster() {
@@ -220,7 +223,7 @@ function handleTournamentEditPosterSelect(event) {
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
-  });
+  }, { maxWidth: 1280, maxHeight: 720, quality: 0.76 });
 }
 
 function clearTournamentEditPoster() {
@@ -414,7 +417,7 @@ async function loadTournaments() {
   if (!el) return;
   setLoading(el, 'Loading tournaments...');
   try {
-    const d = await apiGet('/tournaments');
+    const d = await apiGet('/tournaments?limit=40');
     _allTournaments = (d.tournaments || []).map(t => ({ ...t, _status: calcStatus(t.startDate, t.endDate), _tier: calcTier(t.prizePool) }));
     renderTournaments();
   } catch {
@@ -571,7 +574,7 @@ function openTournDetail(id) {
   openModal(modal);
 }
 
-function handleTournamentResultSelect(event) {
+async function handleTournamentResultSelect(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -584,9 +587,9 @@ function handleTournamentResultSelect(event) {
     event.target.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => {
-    _tournResultImageDraft = typeof reader.result === 'string' ? reader.result : '';
+  try {
+    const image = await compressImageFile(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.74 });
+    _tournResultImageDraft = image.dataUrl;
     const wrap = document.getElementById('riPreviewWrap');
     const img = document.getElementById('riPreview');
     if (wrap && img) {
@@ -594,10 +597,11 @@ function handleTournamentResultSelect(event) {
       img.style.display = 'block';
       wrap.style.display = 'flex';
     }
-  };
-  reader.onerror = () => showToast('Failed to read image', 'error');
-  reader.readAsDataURL(file);
-  event.target.value = '';
+  } catch (error) {
+    showToast(error.message || 'Failed to read image', 'error');
+  } finally {
+    event.target.value = '';
+  }
 }
 
 function clearTournamentResultImage() {

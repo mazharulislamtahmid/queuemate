@@ -33,7 +33,7 @@
   .tourn-info-grid { grid-template-columns: 1fr 1fr; }
   .date-row, .two-col { grid-template-columns: 1fr; }
   .featured-hero {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
     min-height: 0;
     max-height: 560px;
   }
@@ -160,7 +160,7 @@
     position: relative;
     inset: auto;
     height: auto;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
     flex-shrink: 0;
   }
   .featured-hero-overlay,

@@ -3,6 +3,12 @@ const { logActivity } = require('../utils/activityLogger');
 const { validateGame, validateUrl, validateDateOrder, validatePrizePool } = require('../utils/validators');
 const { calcTier, calcStatus } = require('../utils/gameConfig');
 
+function parseListLimit(value, fallback = 40, max = 60) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
+}
+
 const getTournaments = async (req, res) => {
   try {
     const { game, tier, status, search, userId, limit } = req.query;
@@ -18,7 +24,7 @@ const getTournaments = async (req, res) => {
     let tournaments = await Tournament.find(filter)
       .populate('createdBy', 'name avatarUrl coverPhotoUrl socialLinks')
       .sort({ createdAt: -1 })
-      .limit(limit ? parseInt(limit) : 100);
+      .limit(parseListLimit(limit));
 
     // Inject computed status and filter if needed
     tournaments = tournaments.map(t => {

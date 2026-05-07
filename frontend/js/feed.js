@@ -51,21 +51,8 @@ function postImageAspectClass(aspect) {
 }
 
 async function readPostImageFile(file) {
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
-    reader.onerror = () => reject(new Error('Failed to read image'));
-    reader.readAsDataURL(file);
-  });
-
-  const imageAspect = await new Promise(resolve => {
-    const probe = new Image();
-    probe.onload = () => resolve(getReducedPostImageAspect(probe.naturalWidth, probe.naturalHeight));
-    probe.onerror = () => resolve('4:3');
-    probe.src = dataUrl;
-  });
-
-  return { dataUrl, imageAspect };
+  const image = await compressImageFile(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.74 });
+  return { dataUrl: image.dataUrl, imageAspect: getReducedPostImageAspect(image.width, image.height) };
 }
 
 async function initFeed() {
@@ -105,7 +92,7 @@ async function loadFeaturedTournament() {
   stopFeaturedTournamentRotation();
 
   try {
-    const d = await apiGet('/tournaments');
+    const d = await apiGet('/tournaments?limit=12');
     _allFeedTournaments = (d.tournaments || []).map(t => ({
       ...t,
       _status: calcStatus(t.startDate, t.endDate),
@@ -382,7 +369,7 @@ async function loadPosts() {
   if (!el) return;
   setLoading(el, 'Loading posts...');
   try {
-    const d = await apiGet('/posts');
+    const d = await apiGet('/posts?limit=12');
     _allPosts = d.posts || [];
     renderPosts();
   } catch (e) {
@@ -448,7 +435,7 @@ function renderPostCard(p) {
       ${renderPostMenu(p)}
       ${hasImage ? `
         <div class="post-hero-media ${imageAspectClass}"${imageAspectStyle}>
-          <img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${p.user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">
+          <img src="${escHtml(p.imageUrl)}" class="post-image post-image-clickable" alt="${escHtml(`${p.user?.name || 'Player'} post photo`)}" data-fullsrc="${escHtml(p.imageUrl)}" loading="lazy" decoding="async" onclick="openImageViewer(this.dataset.fullsrc, this.alt)" onerror="this.style.display='none'">
           <div class="post-image-overlay"></div>
           <div class="post-floating-profile">
             <div class="post-card-header">
